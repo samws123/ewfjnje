@@ -11,7 +11,11 @@ export default function UserPurpose() {
   const [filteredSchools, setFilteredSchools] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
   const router = useRouter();
-
+  const handleInputBlur = () => {
+    setTimeout(() => {
+      setShowSuggestions(false);
+    }, 150);
+  }
   const schools = [
     "Harvard University",
     "Stanford University",
@@ -133,6 +137,7 @@ export default function UserPurpose() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => searchQuery && setShowSuggestions(true)}
+            onBlur={handleInputBlur}
             style={{
               fontSize: "14px",
             }}
@@ -162,11 +167,10 @@ export default function UserPurpose() {
         <Button
           variant="primary"
           size="lg"
-          className={`w-full py-4 text-base font-medium !rounded-xl mb-8 transition-all duration-200 ${
-            selectedSchool
+          className={`w-full py-4 text-base font-medium !rounded-xl mb-8 transition-all duration-200 ${selectedSchool
               ? "bg-black text-white hover:bg-gray-800"
               : "inline-flex items-center select-none relative justify-center whitespace-nowrap ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border bg-control-primary text-text-primary hover:bg-control-secondary px-1.5 py-2 text-sm rounded-4 font-medium gap-3 h-14 rounded-6 hover:scale-[1.02] ease-in transition-transform"
-          }`}
+            }`}
           onClick={handleContinue}
           disabled={!selectedSchool}
         >

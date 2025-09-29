@@ -13,11 +13,15 @@ import {
 // import { useNavigate } from "react-router-dom";
 import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
+import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
 
 const Dashboard: React.FC = () => {
   // const navigate = useNavigate();
-    const router = useRouter();
-  
+  const router = useRouter();
+  const [inputValue, setInputValue] = useState("");
+  const [isSending, setIsSending] = useState(false);
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [modelDropdownOpen, setModelDropdownOpen] = useState(false);
   const [selectedModel, setSelectedModel] = useState("fast");
@@ -1088,63 +1092,6 @@ const Dashboard: React.FC = () => {
               </button>
             </div>
 
-            {/*         
-            <div className="px-4 py-2">
-              <button className="flex items-center space-x-2 text-xs font-medium text-gray-500 hover:text-gray-700 w-full">
-                <svg
-                  className="w-3 h-3"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-                <span>Chats</span>
-              </button>
-              <p className="text-xs text-gray-500 mt-2 px-5">
-                No chats available
-              </p>
-            </div>
-
-            <div className="px-4 py-2">
-              <button className="flex items-center space-x-2 text-xs font-medium text-gray-500 hover:text-gray-700 w-full">
-                <svg
-                  className="w-3 h-3"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-                <span>Folders</span>
-              </button>
-              <button className="flex items-center space-x-2 text-xs text-gray-600 hover:bg-gray-100 rounded-md px-2 py-1 w-full mt-1">
-                <svg
-                  className="w-3 h-3"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
-                  />
-                </svg>
-                <span>Age reversal research</span>
-              </button>
-            </div> */}
 
             <div className="flex-1 min-h-0 overflow-y-scroll px-4 space-y-1 select-none scrollbar-overlay">
               {/* Chats Section */}
@@ -1305,10 +1252,10 @@ const Dashboard: React.FC = () => {
                             className="relative hover:bg-control-primary rounded-4"
                             style={{ paddingLeft: 0 }}
                           >
-                            <a href="/b/cmfzaz5nc0000356rr016v0i5">
+                            <a href="" >
                               <div
                                 aria-busy="false"
-                                className="inline-flex items-center select-none relative whitespace-nowrap ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 box-border focus:bg-popover-hover focus:text-accent-foreground data-[highlighted]:bg-popover-hover data-[highlighted]:text-accent-foreground overflow-hidden font-medium text-sm px-4 py-2 h-9.5 rounded-5 rounded-4 gap-3 w-full justify-start text-foreground focus-visible:!outline-none focus-visible:!ring-0 focus-visible:ring-offset-0 hover:bg-muted hover:pr-10"
+                                className="inline-flex items-center  select-none relative whitespace-nowrap ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 box-border focus:bg-popover-hover focus:text-accent-foreground data-[highlighted]:bg-popover-hover data-[highlighted]:text-accent-foreground overflow-hidden font-medium text-sm px-4 py-2 h-9.5 rounded-5 rounded-4 gap-3 w-full justify-start text-foreground focus-visible:!outline-none focus-visible:!ring-0 focus-visible:ring-offset-0 hover:bg-muted hover:pr-10"
                               >
                                 <span className="shrink-0">
                                   <svg
@@ -1335,47 +1282,127 @@ const Dashboard: React.FC = () => {
                                 <span className="ml-auto">
                                   <span className="shrink-0 ml-4">
                                     <div className="absolute top-1/2 right-1 -translate-y-1/2 z-[999] h-9 flex items-center overflow-hidden group w-10">
-                                      <button
-                                        aria-busy="false"
-                                        className="inline-flex items-center select-none font-semibold justify-center whitespace-nowrap text-sm ring-offset-background transition-colors focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border text-text-primary data-[highlighted]:bg-popover-hover data-[highlighted]:text-accent-foreground data-[state=highlighted]:bg-popover-hover group-data-[highlighted]:bg-popover-hover group-data-[highlighted]:text-accent-foreground group-focus:bg-popover-hover group-focus:text-accent-foreground rounded-4 data-[state=open]:bg-control-primary focus-visible:outline-none focus-visible:ring-0 absolute right-0 size-9 hover:bg-secondary focus:outline-none z-20 invisible group-hover:visible data-[state=open]:visible"
-                                        type="button"
-                                        id="radix-_r_82_"
-                                        aria-haspopup="menu"
-                                        aria-expanded="false"
-                                        data-state="closed"
-                                      >
-                                        <span className="truncate">
-                                          <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="15"
-                                            height="15"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeWidth="2"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            className="lucide lucide-ellipsis-vertical"
-                                            aria-hidden="true"
+
+                                      <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+                                        <DropdownMenuTrigger asChild>
+                                          <button
+                                            aria-busy="false"
+                                            className="inline-flex items-center select-none font-semibold justify-center whitespace-nowrap text-sm ring-offset-background transition-colors focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border text-text-primary data-[highlighted]:bg-popover-hover data-[highlighted]:text-accent-foreground data-[state=highlighted]:bg-popover-hover group-data-[highlighted]:bg-popover-hover group-data-[highlighted]:text-accent-foreground group-focus:bg-popover-hover group-focus:text-accent-foreground rounded-4 data-[state=open]:bg-control-primary focus-visible:outline-none focus-visible:ring-0 absolute  right-0 size-9 hover:bg-secondary focus:outline-none z-20 invisible group-hover:visible data-[state=open]:visible"
+                                            type="button"
+                                            aria-haspopup="menu"
+                                            aria-expanded={isMenuOpen}
+                                            data-state={isMenuOpen ? "open" : "closed"}
+                                            onClick={(e) => e.preventDefault()}
                                           >
-                                            <circle
-                                              cx="12"
-                                              cy="12"
-                                              r="1"
-                                            ></circle>
-                                            <circle
-                                              cx="12"
-                                              cy="5"
-                                              r="1"
-                                            ></circle>
-                                            <circle
-                                              cx="12"
-                                              cy="19"
-                                              r="1"
-                                            ></circle>
-                                          </svg>
-                                        </span>
-                                      </button>
+                                            <span className="truncate">
+                                              <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                width="15"
+                                                height="15"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth="2"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                className="lucide lucide-ellipsis-vertical"
+                                                aria-hidden="true"
+                                              >
+                                                <circle cx="12" cy="12" r="1"></circle>
+                                                <circle cx="12" cy="5" r="1"></circle>
+                                                <circle cx="12" cy="19" r="1"></circle>
+                                              </svg>
+                                            </span>
+                                          </button>
+                                        </DropdownMenuTrigger>
+
+                                        <DropdownMenuContent align="start" className="w-40 absolute left-[-138px] bg-white rounded-lg shadow-lg p-2">
+                                          {/* Rename Item */}
+                                          <DropdownMenuItem className="flex items-center cursor-pointer p-2 hover:bg-gray-100 rounded">
+                                            <svg
+                                              xmlns="http://www.w3.org/2000/svg"
+                                              width="15"
+                                              height="15"
+                                              viewBox="0 0 24 24"
+                                              fill="none"
+                                              stroke="currentColor"
+                                              strokeWidth="2"
+                                              strokeLinecap="round"
+                                              strokeLinejoin="round"
+                                              className="mr-3 h-7 w-7 "
+                                            >
+                                              <path d="M12 20h9" />
+                                              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                                            </svg>
+                                            <span>Rename</span>
+                                          </DropdownMenuItem>
+
+                                          {/* Separate Item */}
+                                          <DropdownMenuItem className="flex items-center cursor-pointer p-2 hover:bg-gray-100 rounded">
+                                            <svg
+                                              xmlns="http://www.w3.org/2000/svg"
+                                              width="15"
+                                              height="15"
+                                              viewBox="0 0 24 24"
+                                              fill="none"
+                                              stroke="currentColor"
+                                              strokeWidth="2"
+                                              strokeLinecap="round"
+                                              strokeLinejoin="round"
+                                              className="mr-3 h-7 w-7"
+                                            >
+                                              <path d="M16 3h5v5" />
+                                              <path d="M8 21H3v-5" />
+                                              <path d="M21 3l-7.5 7.5" />
+                                              <path d="M3 21l7.5-7.5" />
+                                            </svg>
+                                            <span>Separate</span>
+                                          </DropdownMenuItem>
+
+                                          {/* Share Item */}
+                                          <DropdownMenuItem className="flex items-center cursor-pointer p-2 hover:bg-gray-100 rounded">
+                                            <svg
+                                              xmlns="http://www.w3.org/2000/svg"
+                                              width="15"
+                                              height="15"
+                                              viewBox="0 0 24 24"
+                                              fill="none"
+                                              stroke="currentColor"
+                                              strokeWidth="2"
+                                              strokeLinecap="round"
+                                              strokeLinejoin="round"
+                                              className="mr-3 h-7 w-7"
+                                            >
+                                              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                                              <circle cx="9" cy="7" r="4" />
+                                              <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                                              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                                            </svg>
+                                            <span>Share</span>
+                                          </DropdownMenuItem>
+
+                                          {/* Delete Item */}
+                                          <DropdownMenuItem className="flex items-center text-red-500 cursor-pointer p-2 hover:bg-gray-100 rounded">
+                                            <svg
+                                              xmlns="http://www.w3.org/2000/svg"
+                                              width="15"
+                                              height="15"
+                                              viewBox="0 0 24 24"
+                                              fill="none"
+                                              stroke="currentColor"
+                                              strokeWidth="2"
+                                              strokeLinecap="round"
+                                              strokeLinejoin="round"
+                                              className="mr-3 h-7 w-7"
+                                            >
+                                              <path d="M3 6h18" />
+                                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                            </svg>
+                                            <span>Delete</span>
+                                          </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                      </DropdownMenu>
+
                                     </div>
                                   </span>
                                 </span>
@@ -1417,59 +1444,7 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
 
-            {/* Bottom Section */}
-            {/* <div className="mt-auto p-4 space-y-4">
-              <div className="space-y-1">
-                <button className="flex items-center space-x-3 text-xs text-gray-600 hover:bg-gray-100 rounded-md px-2 py-1 w-full">
-                  <svg
-                    className="w-3 h-3"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
-                    />
-                  </svg>
-                  <span>Invite and earn</span>
-                </button>
-                <button className="flex items-center space-x-3 text-xs text-gray-600 hover:bg-gray-100 rounded-md px-2 py-1 w-full">
-                  <svg
-                    className="w-3 h-3"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M7 8h10m0 0V6a2 2 0 00-2-2H9a2 2 0 00-2 2v2m10 0v10a2 2 0 01-2 2H9a2 2 0 01-2-2V8m10 0H7"
-                    />
-                  </svg>
-                  <span>Feedback</span>
-                </button>
-                <button className="flex items-center space-x-3 text-xs text-gray-600 hover:bg-gray-100 rounded-md px-2 py-1 w-full">
-                  <svg
-                    className="w-3 h-3"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  <span>Support</span>
-                </button>
-              </div>
-            </div> */}
+
             <div className="flex flex-shrink-0 z-10 flex-col p-4 gap-5">
               <div className="flex flex-col items-center gap-1">
                 <Dialog>
@@ -1632,35 +1607,63 @@ const Dashboard: React.FC = () => {
                     </div>
                   </DialogContent>
                 </Dialog>
-                <button
-                  aria-busy="false"
-                  className="inline-flex items-center select-none relative whitespace-nowrap ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border hover:bg-control-primary focus:bg-popover-hover focus:text-accent-foreground data-[highlighted]:bg-popover-hover data-[highlighted]:text-accent-foreground overflow-hidden font-medium w-full text-text-primary justify-start text-sm px-4 py-2 h-9.5 rounded-5 rounded-4 gap-3 duration-0"
-                  type="button"
-                  aria-haspopup="dialog"
-                  aria-expanded="false"
-                  aria-controls="radix-_R_2ulbna9fiv5a5b_"
-                  data-state="closed"
-                >
-                  <span className="shrink-0">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="15"
-                      height="15"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="lucide lucide-thumbs-up flex-shrink-0 text-text-primary"
-                      aria-hidden="true"
+                <Popover open={isFeedbackOpen} onOpenChange={setIsFeedbackOpen}>
+                  <PopoverTrigger asChild>
+                    <button
+                      aria-busy="false"
+                      className="inline-flex items-center select-none relative whitespace-nowrap ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border hover:bg-control-primary focus:bg-popover-hover focus:text-accent-foreground data-[highlighted]:bg-popover-hover data-[highlighted]:text-accent-foreground overflow-hidden font-medium w-full text-text-primary justify-start text-sm px-4 py-2 h-9.5 rounded-5 rounded-4 gap-3 duration-0"
+                      type="button"
                     >
-                      <path d="M7 10v12"></path>
-                      <path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"></path>
-                    </svg>
-                  </span>
-                  <span className="truncate">Feedback</span>
-                </button>
+                      <span className="shrink-0">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="15"
+                          height="15"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="lucide lucide-thumbs-up flex-shrink-0 text-text-primary"
+                          aria-hidden="true"
+                        >
+                          <path d="M7 10v12"></path>
+                          <path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"></path>
+                        </svg>
+                      </span>
+                      <span className="truncate">Feedback</span>
+                    </button>
+                  </PopoverTrigger>
+
+                  <PopoverContent
+                    side="top"
+                    align="start"
+                    sideOffset={5}
+                    className="w-[250px] bg-white p-4 rounded-xl shadow-lg border"
+                  >
+                    <div>
+                      <textarea
+                        placeholder="How can we improve Anara?"
+                        className="w-full h-20 p-2 text-base border-none resize-none focus:outline-none placeholder-gray-500"
+                      />
+                      <div className="flex justify-end items-center mt-2 space-x-3">
+                        <button
+                          onClick={() => setIsFeedbackOpen(false)}
+                          className="px-4 py-2 text-sm font-semibold bg-gray-100 hover:bg-gray-200 rounded-lg"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={() => setIsFeedbackOpen(false)} // Submit के बाद भी बंद करें
+                          className="px-4 py-2 text-sm font-semibold text-white bg-black hover:bg-gray-800 rounded-lg"
+                        >
+                          Submit
+                        </button>
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
                 <button
                   aria-busy="false"
                   className="inline-flex items-center select-none relative whitespace-nowrap ring-offset-background transition-colors focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border hover:bg-control-primary focus:bg-popover-hover focus:text-accent-foreground data-[highlighted]:bg-popover-hover data-[highlighted]:text-accent-foreground overflow-hidden font-medium w-full text-text-primary justify-start text-sm px-4 py-2 h-9.5 rounded-5 rounded-4 gap-3 data-[state=open]:bg-control-primary focus-visible:outline-none focus-visible:ring-0 duration-0"
@@ -1813,9 +1816,11 @@ const Dashboard: React.FC = () => {
                 <div className="relative px-5 pb-3 pt-2">
                   <Textarea
                     placeholder="Understand, research and write about anything"
-                    className="min-h-[20px] w-full resize-none border-0 bg-transparent px-2 py-4 text-base placeholder:text-gray-500 focus:outline-none focus:ring-0 focus:ring-offset-0"
+                    className="min-h-[20px] w-full resize-none border-0 bg-transparent px-2 py-4 text-base placeholder:text-gray-500 focus:outline-none focus:ring-[0!important] focus:ring-offset-0"
                     style={{ fontSize: "15px" }}
                     rows={1}
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
                   />
                   {/* <Textarea
                     placeholder="Understand, research and write about anything"
@@ -1939,8 +1944,6 @@ const Dashboard: React.FC = () => {
                           className={`inline-flex items-center select-none relative whitespace-nowrap ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border text-text-primary hover:bg-control-primary data-[highlighted]:bg-popover-hover data-[highlighted]:text-accent-foreground data-[state=open]:bg-popover-hover data-[highlighted]:bg-popover-hover group-data-[highlighted]:bg-popover-hover group-data-[highlighted]:text-accent-foreground group-focus:bg-popover-hover group-focus:text-accent-foreground px-1.5 text-sm rounded-4 font-medium gap-3 w-full justify-start h-auto py-2`}
                           onClick={() => {
                             setSelectedWordLimit(option.value as number);
-                            // If you want to close the dropdown after selection, add:
-                            // setWordLimitDropdownOpen(false);
                           }}
                           role="menuitem"
                           tabIndex={-1}
@@ -1989,23 +1992,8 @@ const Dashboard: React.FC = () => {
                       ))}
                     </DropdownMenuContent>
                   </DropdownMenu>
-                  <Button className="select-none relative justify-center whitespace-nowrap ring-offset-background focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 box-border data-[highlighted]:bg-popover-hover data-[highlighted]:text-accent-foreground data-[state=highlighted]:bg-popover-hover group-data-[highlighted]:bg-popover-hover group-data-[highlighted]:text-accent-foreground group-focus:bg-popover-hover group-focus:text-accent-foreground h-11 rounded-4 data-[state=open]:bg-control-primary focus-visible:outline-none group inline-flex items-center gap-2 px-5 py-2 rounded-4 text-sm font-medium transition-all duration-200 cursor-pointer bg-secondary hover:bg-secondary-hover text-text-primary focus-visible:ring-0 focus-visible:ring-offset-0 w-fit min-w-0 max-w-full">
-                    <svg
-                      width={12}
-                      height={12}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
-                      />
-                    </svg>
-                  </Button>
-                  <Button className="select-none relative justify-center whitespace-nowrap ring-offset-background focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 box-border data-[highlighted]:bg-popover-hover data-[highlighted]:text-accent-foreground data-[state=highlighted]:bg-popover-hover group-data-[highlighted]:bg-popover-hover group-data-[highlighted]:text-accent-foreground group-focus:bg-popover-hover group-focus:text-accent-foreground h-11 rounded-4 data-[state=open]:bg-control-primary focus-visible:outline-none group inline-flex items-center gap-2 px-5 py-2 rounded-4 text-sm font-medium transition-all duration-200 cursor-pointer bg-secondary hover:bg-secondary-hover text-text-primary focus-visible:ring-0 focus-visible:ring-offset-0 w-fit min-w-0 max-w-full">
+
+                  {/* <Button className="select-none relative justify-center whitespace-nowrap ring-offset-background focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 box-border data-[highlighted]:bg-popover-hover data-[highlighted]:text-accent-foreground data-[state=highlighted]:bg-popover-hover group-data-[highlighted]:bg-popover-hover group-data-[highlighted]:text-accent-foreground group-focus:bg-popover-hover group-focus:text-accent-foreground h-11 rounded-4 data-[state=open]:bg-control-primary focus-visible:outline-none group inline-flex items-center gap-2 px-5 py-2 rounded-4 text-sm font-medium transition-all duration-200 cursor-pointer bg-secondary hover:bg-secondary-hover text-text-primary focus-visible:ring-0 focus-visible:ring-offset-0 w-fit min-w-0 max-w-full">
                     <svg
                       width={12}
                       height={12}
@@ -2020,23 +2008,7 @@ const Dashboard: React.FC = () => {
                         d="M12 4v16m8-8H4"
                       />
                     </svg>
-                  </Button>
-                  <Button className="select-none relative justify-center whitespace-nowrap ring-offset-background focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 box-border data-[highlighted]:bg-popover-hover data-[highlighted]:text-accent-foreground data-[state=highlighted]:bg-popover-hover group-data-[highlighted]:bg-popover-hover group-data-[highlighted]:text-accent-foreground group-focus:bg-popover-hover group-focus:text-accent-foreground h-11 rounded-4 data-[state=open]:bg-control-primary focus-visible:outline-none group inline-flex items-center gap-2 px-5 py-2 rounded-4 text-sm font-medium transition-all duration-200 cursor-pointer bg-secondary hover:bg-secondary-hover text-text-primary focus-visible:ring-0 focus-visible:ring-offset-0 w-fit min-w-0 max-w-full">
-                    <svg
-                      width={12}
-                      height={12}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M7 8h10m0 0V6a2 2 0 00-2-2H9a2 2 0 00-2 2v2m10 0v10a2 2 0 01-2 2H9a2 2 0 01-2-2V8m10 0H7"
-                      />
-                    </svg>
-                  </Button>
+                  </Button> */}
 
                   <div
                     className="flex flex-row gap-2 flex-shrink-0 "
@@ -2073,25 +2045,45 @@ const Dashboard: React.FC = () => {
                       </span>
                     </button>
                     <button
-                      disabled
-                      className="disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center rounded-full p-3 ease-in transition-all duration-150 cursor-pointer bg-secondary dark:bg-secondary text-text-secondary"
+                      onClick={() => {
+                        if (!inputValue.trim() || isSending) return;
+                        setIsSending(true);
+                        setTimeout(() => {
+                          setIsSending(false);
+                          setInputValue("");
+                        }, 2000);
+                      }}
+                      disabled={!inputValue.trim() || isSending}
+                      className={`flex justify-center items-center rounded-full p-3 transition-all duration-200 ease-in-out 
+      ${isSending
+                          ? 'bg-blue-600 text-white cursor-wait'
+                          : inputValue.trim()
+                            ? 'bg-blue-600 text-white cursor-pointer'
+                            : 'bg-secondary text-text-secondary cursor-not-allowed'
+                        }`}
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="lucide lucide-arrow-up h-7 w-7"
-                        aria-hidden="true"
-                      >
-                        <path d="m5 12 7-7 7 7"></path>
-                        <path d="M12 19V5"></path>
-                      </svg>
+                      {isSending ? (
+                        <svg width="24" height="24" viewBox="0 0 24 24" className="h-7 w-7 ">
+                          <rect x="5" y="5" width="15" height="15" fill="white" />
+                        </svg>
+                      ) : (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="h-7 w-7"
+                          aria-hidden="true"
+                        >
+                          <path d="m5 12 7-7 7 7"></path>
+                          <path d="M12 19V5"></path>
+                        </svg>
+                      )}
                     </button>
                   </div>
                 </div>

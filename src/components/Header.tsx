@@ -51,7 +51,7 @@ export const Header: React.FC = () => {
           
           {/* Arrow logo */}
           <svg
-            className="w-4 h-4 text-gray-600"
+            className="w-7 h-7 text-gray-600"
             viewBox="0 0 24 24"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
@@ -99,7 +99,7 @@ export const Header: React.FC = () => {
                       strokeWidth="3"
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      className={`lucide lucide-chevron-down relative top-[1px] ml-2 h-6 w-6 transition duration-200 ${
+                      className={`lucide lucide-chevron-down relative top-[1px] ml-2 h-9 w-9 transition duration-200 ${
                         useCasesDropdown.open ? "rotate-180" : ""
                       }`}
                       aria-hidden="true"
@@ -197,7 +197,7 @@ export const Header: React.FC = () => {
                       strokeWidth="3"
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      className={`lucide lucide-chevron-down relative top-[1px] ml-2 h-6 w-6 transition duration-200 ${
+                      className={`lucide lucide-chevron-down relative top-[1px] ml-2 h-9 w-9 transition duration-200 ${
                         resourcesDropdown.open ? "rotate-180" : ""
                       }`}
                       aria-hidden="true"
@@ -285,14 +285,14 @@ export const Header: React.FC = () => {
           <div className="flex flex-row gap-5">
             <button
               aria-busy="false"
-              className="inline-flex items-center relative justify-center whitespace-nowrap text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border bg-secondary text-secondary-foreground hover:bg-secondary-hover h-9.5 rounded-5 gap-3 font-[550] select-none !rounded-full px-6 py-3"
+              className="inline-flex items-center relative justify-center whitespace-nowrap text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border bg-secondary text-secondary-foreground hover:bg-secondary-hover h-9.5 rounded-5 gap-3 font-[550] select-none !rounded-full px-9 py-6 h-[2.375rem]"
               onClick={() => router.push('/signup')}
             >
               <span className="truncate tracking-wide">Log in</span>
             </button>
             <button
               aria-busy="false"
-              className="inline-flex items-center relative justify-center whitespace-nowrap text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border h-9.5 rounded-5 gap-3 font-[550] select-none bg-black text-muted hover:bg-black/90 !rounded-full px-6 py-3"
+              className="inline-flex items-center relative justify-center whitespace-nowrap text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border h-9.5 rounded-5 gap-3 font-[550] select-none bg-black text-muted hover:bg-black/90 !rounded-full px-9 py-6 h-[2.375rem]"
               onClick={() => router.push('/signup')}
             >
               <span className="truncate tracking-wide">Try for free</span>
