@@ -91,8 +91,8 @@ export default function EmailVerification() {
             if (profileResponse.ok) {
               const profileData = await profileResponse.json();
               if (profileData.profile && profileData.profile.school_id) {
-                // User has school selected, go to dashboard
-                router.push('/dashboard');
+                // User has school selected, go to invite-friends
+                router.push('/invite-friends');
               } else {
                 // User doesn't have school selected, go to school selection
                 router.push('/user-purpose');

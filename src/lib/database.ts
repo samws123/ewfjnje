@@ -3,10 +3,51 @@ import bcrypt from 'bcryptjs';
 
 console.log("DATABASE_URL", process.env.DATABASE_URL);
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
-});
+// Add error handling for the pool
+let pooll;
+export function getPool() {
+  if (!process.env.DATABASE_URL) {
+    throw new Error('DATABASE_URL is required');
+  }
+  if (!pooll) {
+    pooll = new Pool({ 
+      connectionString: process.env.DATABASE_URL, 
+      max: 5, 
+      ssl: process.env.DATABASE_URL?.includes('supabase') ? { rejectUnauthorized: false } : false
+    });
+  }
+  return pooll;
+}
+
+export const pool = getPool();
+
+
+
+// Export the pool for reuse across the project
+
+
+// Optimized query function - uses pool directly without creating clients
+export async function query(text: string, params?: any[], retries = 2): Promise<any> {
+  const p = getPool();
+  return p.query(text, params);
+}
+
+
+// Helper function to identify connection-related errors
+function isConnectionError(error: any): boolean {
+  const connectionErrors = [
+    'Connection terminated',
+    'connection timeout',
+    'ECONNRESET',
+    'ENOTFOUND',
+    'ETIMEDOUT',
+    'connection closed'
+  ];
+  
+  return connectionErrors.some(errType => 
+    error.message?.toLowerCase().includes(errType.toLowerCase())
+  );
+}
 
 export interface User {
   id: string;
@@ -44,13 +85,12 @@ export interface UserProfile {
 
 // Initialize database tables
 export async function initializeDatabase() {
-  const client = await pool.connect();
   try {
     // Enable uuid extension if not exists
-    await client.query('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
+    await query('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
     
     // Create users table if it doesn't exist
-    await client.query(`
+    await query(`
       CREATE TABLE IF NOT EXISTS users (
         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
         email VARCHAR(255) UNIQUE NOT NULL,
@@ -63,7 +103,7 @@ export async function initializeDatabase() {
     `);
 
     // Create email verification codes table if it doesn't exist
-    await client.query(`
+    await query(`
       CREATE TABLE IF NOT EXISTS email_verification_codes (
         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
         email VARCHAR(255) NOT NULL,
@@ -75,7 +115,7 @@ export async function initializeDatabase() {
     `);
 
     // Create schools table if it doesn't exist
-    await client.query(`
+    await query(`
       CREATE TABLE IF NOT EXISTS schools (
         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
         name TEXT NOT NULL,
@@ -85,7 +125,7 @@ export async function initializeDatabase() {
     `);
 
     // Create user_profile table if it doesn't exist
-    await client.query(`
+    await query(`
       CREATE TABLE IF NOT EXISTS user_profile (
         user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
         school_id UUID REFERENCES schools(id),
@@ -95,24 +135,123 @@ export async function initializeDatabase() {
       )
     `);
 
+    // Create user_canvas_sessions table if it doesn't exist
+    await query(`
+      CREATE TABLE IF NOT EXISTS user_canvas_sessions (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        base_url TEXT NOT NULL,
+        session_cookie TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+
+    // Create courses table if it doesn't exist
+    await query(`
+      CREATE TABLE IF NOT EXISTS courses (
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        id BIGINT NOT NULL,
+        name TEXT,
+        course_code TEXT,
+        term TEXT,
+        raw_json JSONB,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW(),
+        PRIMARY KEY (user_id, id)
+      )
+    `);
+
+    // Add missing columns if they don't exist (migration)
+    try {
+      await query(`ALTER TABLE courses ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW()`);
+      await query(`ALTER TABLE courses ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW()`);
+    } catch (error: any) {
+      // Ignore errors if columns already exist
+      console.log('Courses table migration completed or columns already exist');
+    }
+
+    // Create assignments table if it doesn't exist
+    await query(`
+      CREATE TABLE IF NOT EXISTS assignments (
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        id BIGINT NOT NULL,
+        course_id BIGINT NOT NULL,
+        name TEXT,
+        due_at TIMESTAMP,
+        description TEXT,
+        updated_at TIMESTAMP,
+        points_possible DECIMAL,
+        submission_types TEXT[],
+        html_url TEXT,
+        workflow_state TEXT,
+        raw_json JSONB,
+        created_at TIMESTAMP DEFAULT NOW(),
+        PRIMARY KEY (user_id, id)
+      )
+    `);
+
+    // Create announcements table if it doesn't exist
+    await query(`
+      CREATE TABLE IF NOT EXISTS announcements (
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        id BIGINT NOT NULL,
+        course_id BIGINT NOT NULL,
+        title TEXT,
+        message TEXT,
+        posted_at TIMESTAMP,
+        created_at TIMESTAMP,
+        last_reply_at TIMESTAMP,
+        html_url TEXT,
+        author_name TEXT,
+        author_id BIGINT,
+        read_state TEXT,
+        locked BOOLEAN DEFAULT FALSE,
+        published BOOLEAN DEFAULT FALSE,
+        raw_json JSONB,
+        PRIMARY KEY (user_id, id)
+      )
+    `);
+
+    // Create grades table if it doesn't exist
+    await query(`
+      CREATE TABLE IF NOT EXISTS grades (
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        id BIGINT NOT NULL,
+        assignment_id BIGINT NOT NULL,
+        course_id BIGINT NOT NULL,
+        student_id BIGINT,
+        score DECIMAL,
+        grade TEXT,
+        excused BOOLEAN DEFAULT FALSE,
+        late BOOLEAN DEFAULT FALSE,
+        missing BOOLEAN DEFAULT FALSE,
+        submitted_at TIMESTAMP,
+        graded_at TIMESTAMP,
+        workflow_state TEXT,
+        submission_type TEXT,
+        attempt INTEGER,
+        raw_json JSONB,
+        created_at TIMESTAMP DEFAULT NOW(),
+        PRIMARY KEY (user_id, id)
+      )
+    `);
+
     console.log('Database tables initialized successfully');
   } catch (error) {
     console.error('Error initializing database:', error);
     throw error;
-  } finally {
-    client.release();
   }
 }
 
 // User operations
 export async function createUser(email: string, name?: string, password?: string, ssoProvider?: string): Promise<User> {
-  const client = await pool.connect();
   try {
     const passwordHash = password ? await bcrypt.hash(password, 12) : null;
     
     console.log('Creating user with:', { email, name, ssoProvider });
     
-    const result = await client.query(
+    const result = await query(
       `INSERT INTO users (email, name, password_hash, sso_provider, email_verified) 
        VALUES ($1, $2, $3, $4, $5) 
        RETURNING *`,
@@ -131,38 +270,38 @@ export async function createUser(email: string, name?: string, password?: string
       throw new Error('User with this email already exists');
     }
     throw new Error(`Failed to create user: ${error.message}`);
-  } finally {
-    client.release();
   }
 }
 
 export async function getUserByEmail(email: string): Promise<User | null> {
-  const client = await pool.connect();
   try {
-    const result = await client.query(
+    const result = await query(
       'SELECT * FROM users WHERE email = $1',
       [email]
     );
 
     return result.rows.length > 0 ? result.rows[0] : null;
   } catch (error: any) {
+    console.error('Database error in getUserByEmail:', error);
+    
+    // Handle specific database errors
+    if (error.code === 'XX000' || error.message.includes('db_termination')) {
+      console.error('Database connection terminated, retrying...');
+      // Could implement retry logic here if needed
+    }
+    
     throw new Error(`Failed to get user: ${error.message}`);
-  } finally {
-    client.release();
   }
 }
 
 export async function updateUserEmailVerified(email: string, verified: boolean = true): Promise<void> {
-  const client = await pool.connect();
   try {
-    await client.query(
+    await query(
       'UPDATE users SET email_verified = $1 WHERE email = $2',
       [verified, email]
     );
   } catch (error: any) {
     throw new Error(`Failed to update user verification: ${error.message}`);
-  } finally {
-    client.release();
   }
 }
 
@@ -178,10 +317,9 @@ export async function verifyPassword(email: string, password: string): Promise<U
 
 // Verification code operations
 export async function createVerificationCode(email: string, code: string): Promise<VerificationCode> {
-  const client = await pool.connect();
   try {
     // Clean up old codes for this email
-    await client.query(
+    await query(
       'DELETE FROM email_verification_codes WHERE email = $1',
       [email]
     );
@@ -189,7 +327,7 @@ export async function createVerificationCode(email: string, code: string): Promi
     const expiresAt = new Date();
     expiresAt.setMinutes(expiresAt.getMinutes() + 10); // 10 minutes expiry
 
-    const result = await client.query(
+    const result = await query(
       `INSERT INTO email_verification_codes (email, code, expires_at) 
        VALUES ($1, $2, $3) 
        RETURNING *`,
@@ -203,15 +341,12 @@ export async function createVerificationCode(email: string, code: string): Promi
     return result.rows[0];
   } catch (error: any) {
     throw new Error(`Failed to create verification code: ${error.message}`);
-  } finally {
-    client.release();
   }
 }
 
 export async function verifyCode(email: string, code: string): Promise<boolean> {
-  const client = await pool.connect();
   try {
-    const result = await client.query(
+    const result = await query(
       `SELECT * FROM email_verification_codes 
        WHERE email = $1 AND code = $2 AND used = FALSE`,
       [email, code]
@@ -229,7 +364,7 @@ export async function verifyCode(email: string, code: string): Promise<boolean> 
     }
 
     // Mark code as used
-    await client.query(
+    await query(
       'UPDATE email_verification_codes SET used = TRUE WHERE id = $1',
       [verificationCode.id]
     );
@@ -238,90 +373,72 @@ export async function verifyCode(email: string, code: string): Promise<boolean> 
   } catch (error: any) {
     console.error('Error verifying code:', error);
     return false;
-  } finally {
-    client.release();
   }
 }
 
 export async function cleanupExpiredCodes(): Promise<void> {
-  const client = await pool.connect();
   try {
-    await client.query(
+    await query(
       'DELETE FROM email_verification_codes WHERE expires_at < NOW()'
     );
   } catch (error: any) {
     console.error('Error cleaning up expired codes:', error);
-  } finally {
-    client.release();
   }
 }
 
 // School operations
 export async function createSchool(name: string, lms: string, baseUrl: string): Promise<School> {
-  const client = await pool.connect();
   try {
-    const result = await client.query(
+    const result = await query(
       'INSERT INTO schools (name, lms, base_url) VALUES ($1, $2, $3) RETURNING *',
       [name, lms, baseUrl]
     );
     return result.rows[0];
   } catch (error: any) {
     throw new Error(`Failed to create school: ${error.message}`);
-  } finally {
-    client.release();
   }
 }
 
 export async function getSchoolByName(name: string): Promise<School | null> {
-  const client = await pool.connect();
   try {
-    const result = await client.query(
+    const result = await query(
       'SELECT * FROM schools WHERE name = $1',
       [name]
     );
     return result.rows.length > 0 ? result.rows[0] : null;
   } catch (error: any) {
     throw new Error(`Failed to get school: ${error.message}`);
-  } finally {
-    client.release();
   }
 }
 
-export async function searchSchools(query: string): Promise<School[]> {
-  const client = await pool.connect();
+export async function searchSchools(searchQuery: string): Promise<School[]> {
   try {
-    const result = await client.query(
+    const result = await query(
       'SELECT * FROM schools WHERE name ILIKE $1 ORDER BY name LIMIT 10',
-      [`%${query}%`]
+      [`%${searchQuery}%`]
     );
     return result.rows;
   } catch (error: any) {
     throw new Error(`Failed to search schools: ${error.message}`);
-  } finally {
-    client.release();
   }
 }
 
 // User profile operations
 export async function createUserProfile(userId: string, schoolId?: string, lms?: string, baseUrl?: string): Promise<UserProfile> {
-  const client = await pool.connect();
   try {
-    const result = await client.query(
+    const result = await query(
       'INSERT INTO user_profile (user_id, school_id, lms, base_url) VALUES ($1, $2, $3, $4) RETURNING *',
       [userId, schoolId, lms, baseUrl]
     );
     return result.rows[0];
   } catch (error: any) {
     throw new Error(`Failed to create user profile: ${error.message}`);
-  } finally {
-    client.release();
   }
 }
 
 export async function updateUserProfile(userId: string, schoolId?: string, lms?: string, baseUrl?: string): Promise<UserProfile> {
-  const client = await pool.connect();
   try {
-    const result = await client.query(
+    const result = await query(
       `INSERT INTO user_profile (user_id, school_id, lms, base_url) 
        VALUES ($1, $2, $3, $4) 
        ON CONFLICT (user_id) 
@@ -332,23 +449,18 @@ export async function updateUserProfile(userId: string, schoolId?: string, lms?:
     return result.rows[0];
   } catch (error: any) {
     throw new Error(`Failed to update user profile: ${error.message}`);
-  } finally {
-    client.release();
   }
 }
 
 export async function getUserProfile(userId: string): Promise<UserProfile | null> {
-  const client = await pool.connect();
   try {
-    const result = await client.query(
+    const result = await query(
       'SELECT * FROM user_profile WHERE user_id = $1',
       [userId]
     );
     return result.rows.length > 0 ? result.rows[0] : null;
   } catch (error: any) {
     throw new Error(`Failed to get user profile: ${error.message}`);
-  } finally {
-    client.release();
   }
 }
 

@@ -55,15 +55,50 @@ export default function UserPurpose() {
     }
   }, [user, authLoading, router]);
 
+  const checkSubscriptionAndRedirect = async () => {
+    // First check cached user data
+    if (user?.subscription_status) {
+      console.log('Using cached subscription status for routing:', user.subscription_status);
+      const isActive = user.subscription_status === 'active';
+      
+      if (isActive) {
+        router.push('/dashboard');
+      } else {
+        router.push('/invite-friends');
+      }
+      return;
+    }
+
+    // Fallback to API call if no cached subscription data
+    try {
+      console.log('Fetching subscription status from API for routing');
+      const response = await fetch('/api/stripe/subscription-status', {
+        credentials: 'include'
+      });
+      const data = await response.json();
+      
+      if (data.success && data.subscription.isActive) {
+        // User has active subscription, go to extension installation
+        router.push('/dashboard');
+      } else {
+        // User needs to subscribe, go to invite-friends
+        router.push('/invite-friends');
+      }
+    } catch (error) {
+      console.error('Error checking subscription status:', error);
+      // Default to invite-friends if there's an error
+      router.push('/invite-friends');
+    }
+  };
+
   const checkExistingSchoolSelection = async () => {
     try {
       const response = await fetch('/api/user/profile');
       if (response.ok) {
         const data = await response.json();
         if (data.profile && data.profile.school_id) {
-          // User already has a school selected, redirect to dashboard
-         
-          router.push('/dashboard');
+          // User already has a school selected, check subscription status
+          await checkSubscriptionAndRedirect();
           return;
         }
         else{
@@ -150,14 +185,13 @@ export default function UserPurpose() {
         },
         body: JSON.stringify({
           schoolName: selectedSchool.name,
-          lms: selectedSchool.lms,
           baseUrl: selectedSchool.base_url
         }),
       });
 
       if (response.ok) {
         toast.success('School selection saved!');
-        router.push("/dashboard");
+        await checkSubscriptionAndRedirect();
       } else {
         const data = await response.json();
         toast.error(data.error || 'Failed to save school selection');

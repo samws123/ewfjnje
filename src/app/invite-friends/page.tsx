@@ -1,13 +1,75 @@
 'use client'
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { useAuth } from "@/lib/auth-context";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
-export default function InviteFriends() {
+interface SubscriptionStatus {
+  status: string;
+  isActive: boolean;
+  plan?: string;
+}
+
+function InviteFriends() {
   const [emails, setEmails] = useState<string[]>(["", "", ""]);
+  const [loading, setLoading] = useState(false);
+  const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus | null>(null);
+  const [loadingSubscription, setLoadingSubscription] = useState(true);
   const router = useRouter();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (user && !subscriptionStatus) {
+      // Only fetch if we don't already have subscription status
+      fetchSubscriptionStatus();
+    }
+  }, [user, subscriptionStatus]);
+
+  const fetchSubscriptionStatus = async () => {
+    // Prevent multiple simultaneous calls
+    if (loadingSubscription) {
+      console.log('Subscription status already loading, skipping...');
+      return;
+    }
+
+    // First check cached user data
+    if (user?.subscription_status) {
+      console.log('Using cached subscription status:', user.subscription_status);
+      const isActive = user.subscription_status === 'active';
+      
+      setSubscriptionStatus({
+        status: user.subscription_status,
+        isActive,
+        plan: user.subscription_plan || 'monthly'
+      });
+      setLoadingSubscription(false);
+      return;
+    }
+
+    // Fallback to API call if no cached subscription data
+    setLoadingSubscription(true);
+    try {
+      console.log('Fetching subscription status from API...');
+      const response = await fetch("/api/stripe/subscription-status", {
+        credentials: 'include' // Ensure cookies are sent
+      });
+      const data = await response.json();
+      if (data.success) {
+        setSubscriptionStatus(data.subscription);
+        console.log('Subscription status loaded:', data.subscription);
+      } else {
+        console.error('Failed to fetch subscription status:', data.error);
+      }
+    } catch (error) {
+      console.error('Error fetching subscription status:', error);
+    } finally {
+      setLoadingSubscription(false);
+    }
+  };
 
   const handleEmailChange = (index: number, value: string) => {
     const newEmails = [...emails];
@@ -19,14 +81,94 @@ export default function InviteFriends() {
     setEmails([...emails, ""]);
   };
 
-  const handleTakeToAnara = () => {
-    router.push("/dashboard");
+  const handleSendInvitations = async () => {
+    // Filter out empty emails
+    const validEmails = emails.filter(email => email.trim() !== '');
+    
+    if (validEmails.length === 0) {
+      toast.error('Please enter at least one email address');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch('/api/invite/send-invitations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ emails: validEmails }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success(`Successfully sent ${data.invitationsSent} invitation(s)!`);
+        // Clear the email inputs
+        setEmails(["", "", ""]);
+      } else {
+        toast.error(data.error || 'Failed to send invitations');
+      }
+    } catch (error) {
+      console.error('Error sending invitations:', error);
+      toast.error('An error occurred while sending invitations');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubscribe = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/stripe/create-checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // Ensure cookies are sent
+        body: JSON.stringify({ 
+          plan: 'monthly' // You can make this dynamic
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.checkoutUrl) {
+        // Redirect to Stripe checkout
+        window.location.href = data.checkoutUrl;
+      } else {
+        toast.error(data.error || 'Failed to create checkout session');
+      }
+    } catch (error) {
+      console.error('Error creating checkout:', error);
+      toast.error('An error occurred while creating checkout');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleInviteAndSubscribe = async () => {
+    // First send invitations if there are any emails
+    const validEmails = emails.filter(email => email.trim() !== '');
+    
+    if (validEmails.length > 0) {
+      await handleSendInvitations();
+    }
+    
+    // Then handle subscription
+    if (!subscriptionStatus?.isActive) {
+      await handleSubscribe();
+    } else {
+      // If already subscribed, go to extension installation page
+      router.push("/install-extension");
+    }
   };
 
   const handleCopyInviteLink = () => {
-    // Copy invite link to clipboard
-    const inviteLink = "https://anara.app/invite/abc123";
+    // Generate a unique invite link (you might want to get this from an API)
+    const inviteLink = `${window.location.origin}/signup?ref=USER123`;
     navigator.clipboard.writeText(inviteLink);
+    toast.success('Invite link copied to clipboard!');
   };
 
   return (
@@ -116,14 +258,15 @@ export default function InviteFriends() {
             </button>
           </div>
 
-          {/* Install Extension Button */}
+          {/* Invite and Subscribe Button */}
           <Button
             variant="primary"
             size="lg"
             className="inline-flex items-center select-none relative justify-center whitespace-nowrap ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border bg-background-inverse text-text-inverse px-1.5 py-2 text-sm rounded-4 font-medium gap-3 w-full rounded-6 h-14"
-            onClick={handleTakeToAnara}
+            onClick={handleInviteAndSubscribe}
+            disabled={loading }
           >
-            Install extension
+            {loading ? 'Processing...' : subscriptionStatus?.isActive ? 'Send Invites & Continue' : 'Invite and Subscribe'}
           </Button>
 
           {/* Copy Invite Link Button */}
@@ -146,12 +289,12 @@ export default function InviteFriends() {
       <div className="flex flex-col items-center justify-center py-8 text-text-primary w-120 text-center text-sm">
         <span className="mb-2">
           Continuing as{" "}
-          <span className="font-semibold">jasara.pauling@inboxorigin.com</span>
+          <span className="font-semibold">{user?.email}</span>
         </span>
         <span>
           Log in with another email{" "}
           <a
-            href="#"
+            href="/signup"
             className="hover:text-black transition-all duration-150 ease-in underline"
           >
             here
@@ -161,3 +304,14 @@ export default function InviteFriends() {
     </div>
   );
 }
+
+// Wrap with authentication
+function InviteFriendsPage() {
+  return (
+    <ProtectedRoute requireAuth={true} redirectTo="/signup">
+      <InviteFriends />
+    </ProtectedRoute>
+  );
+}
+
+export default InviteFriendsPage;

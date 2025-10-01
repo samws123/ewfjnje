@@ -17,4 +17,4 @@ export async function ensureDatabaseInitialized() {
 }
 
 // Initialize immediately when this module is imported
-ensureDatabaseInitialized();
+// ensureDatabaseInitialized();

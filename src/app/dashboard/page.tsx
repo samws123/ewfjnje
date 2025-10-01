@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 
 // Chrome extension types
@@ -20,7 +20,7 @@ import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
-  DropdownMenuItem,
+  DropdownMenuItem
 } from "@/components/ui/dropdown-menu";
 // import { useNavigate } from "react-router-dom";
 import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
@@ -28,6 +28,13 @@ import { useRouter } from "next/navigation";
 import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { useAuth } from "@/lib/auth-context";
+
+
+interface SubscriptionStatus {
+  status: string;
+  isActive: boolean;
+  plan?: string;
+}
 
 const Dashboard: React.FC = () => {
   // const navigate = useNavigate();
@@ -45,6 +52,89 @@ const Dashboard: React.FC = () => {
   const [selectedWordLimit, setSelectedWordLimit] = useState(250);
   const [syncing, setSyncing] = useState(false);
   const [syncMessage, setSyncMessage] = useState("");
+  const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus | null>(null);
+  const [checkingSubscription, setCheckingSubscription] = useState(true);
+
+  //Check subscription status on component mount
+  useEffect(() => {
+    if (user) {
+      checkSubscriptionStatus();
+    }
+  }, [user]);
+
+  const checkSubscriptionStatus = async () => {
+    setCheckingSubscription(true);
+    
+    // First check if user data has subscription info (from cache)
+    if (user?.subscription_status) {
+      console.log('Using cached subscription status:', user.subscription_status);
+      const isActive = user.subscription_status === 'active';
+      
+      setSubscriptionStatus({
+        status: user.subscription_status,
+        isActive,
+        customerId: user.stripe_customer_id,
+        subscriptionId: user.stripe_subscription_id,
+        currentPeriodStart: user.subscription_current_period_start,
+        currentPeriodEnd: user.subscription_current_period_end,
+        plan: user.subscription_plan || 'monthly'
+      });
+      
+      if (!isActive) {
+        toast.error('Please subscribe to access the dashboard');
+        router.push('/invite-friends');
+        return;
+      }
+      
+      setCheckingSubscription(false);
+      return;
+    }
+
+    // Fallback to API call if no cached subscription data
+    try {
+      console.log('Fetching subscription status from API');
+      const response = await fetch('/api/stripe/subscription-status', {
+        credentials: 'include' // Ensure cookies are sent
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        setSubscriptionStatus(data.subscription);
+        
+        // If user is not subscribed, redirect to invite-friends
+        if (!data.subscription.isActive) {
+          toast.error('Please subscribe to access the dashboard');
+          router.push('/invite-friends');
+          return;
+        }
+      } else {
+        // If we can't check subscription status, redirect to invite-friends
+        toast.error('Unable to verify subscription status');
+        router.push('/invite-friends');
+        return;
+      }
+    } catch (error) {
+      console.error('Error checking subscription status:', error);
+      // If there's an error, redirect to invite-friends
+      toast.error('Unable to verify subscription status');
+      router.push('/invite-friends');
+      return;
+    } finally {
+      setCheckingSubscription(false);
+    }
+  };
+
+  // Show loading while checking subscription
+  if (checkingSubscription) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+          <p className="text-gray-600">Checking subscription status...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Extension communication configuration
   const CONFIG = {
@@ -200,11 +290,101 @@ const Dashboard: React.FC = () => {
         displayMessage(`🔐 Fingerprint: ${fingerprint.name} (len ${fingerprint.length}, sha256 ${fingerprint.sha256_12})`);
       }
 
-      // Here you would typically call the actual sync function
-      // For now, we'll simulate a successful sync
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      displayMessage('✅ Canvas sync completed successfully!');
+           // Get user's base URL from database
+           displayMessage('🔄 Getting user configuration…');
+           const configResponse = await fetch('/api/user/base-url');
+           if (!configResponse.ok) {
+             throw new Error('Failed to get user configuration');
+           }
+           const config = await configResponse.json();
+           const baseUrl = config.baseUrl;
+          
+     
+           // Generate user token
+           displayMessage('🔑 Generating authentication token…');
+           const tokenResponse = await fetch('/api/auth/token', { 
+             method: 'POST',
+             headers: { 'Content-Type': 'application/json' }
+           });
+           if (!tokenResponse.ok) {
+             throw new Error('Failed to generate authentication token');
+           }
+           const tokenData = await tokenResponse.json();
+           const userToken = tokenData.token;
+     
+           let res;
+           try {
+             res = await new Promise((resolve, reject) => {
+               const t = setTimeout(() => reject(new Error('timeout')), 8000);
+               chrome.runtime.sendMessage( CONFIG.EXTENSION_ID, { type: 'SYNC_CANVAS', userToken: userToken, apiEndpoint: 'http://localhost:3000/api', baseUrl: baseUrl }, (r) => {
+                 clearTimeout(t);
+                 if (chrome.runtime.lastError) return reject(chrome.runtime.lastError);
+                 resolve(r);
+               });
+             });
+           } catch {
+             res = await bridgeCall('SYNC_CANVAS', { userToken: userToken, apiEndpoint: 'http://localhost:3000/api', baseUrl: baseUrl });
+           }
+      console.log(res)
+      if (res?.ok) {
+        console.log(res)
       
+      //  Import courses from Canvas
+        displayMessage('📥 Importing courses from Canvas…');
+        const importResponse = await fetch('/api/sync/import-courses', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${userToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        const importResult = await importResponse.json();
+        
+        if (importResponse.ok && importResult?.ok) {
+          displayMessage(`📥 Imported ${importResult.imported} courses from ${importResult.baseUrl}`);
+        } else {
+          throw new Error(`Failed to import courses: ${importResult.error || 'Unknown error'}`);
+        }
+                // Import assignments from Canvas
+                displayMessage('📚 Importing assignments from Canvas…');
+                const assignmentResponse = await fetch('/api/sync/import-assignments', {
+                  method: 'POST',
+                  headers: {
+                    'Authorization': `Bearer ${userToken}`,
+                    'Content-Type': 'application/json'
+                  }
+                });
+                
+                const assignmentResult = await assignmentResponse.json();
+                
+                if (assignmentResponse.ok && assignmentResult?.ok) {
+                  displayMessage(`📚 Imported ${assignmentResult.imported} assignments from ${assignmentResult.baseUrl}`);
+                } else {
+                  throw new Error(`Failed to import assignments: ${assignmentResult.error || 'Unknown error'}`);
+                }
+                        // Import announcements from Canvas
+        displayMessage('📢 Importing announcements from Canvas…');
+        const announcementResponse = await fetch('/api/sync/import-announcements', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${userToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        const announcementResult = await announcementResponse.json();
+        
+        if (announcementResponse.ok && announcementResult?.ok) {
+          displayMessage(`📢 Imported ${announcementResult.imported} announcements from ${announcementResult.baseUrl}`);
+        } else {
+          throw new Error(`Failed to import announcements: ${announcementResult.error || 'Unknown error'}`);
+        }
+                // Call Canvas sync API endpoint
+      displayMessage('🔄 Getting Canvas configuration…');
+      
+    
+    }
       toast.success('Canvas sync completed!');
     } catch (error: any) {
       console.error('Canvas sync failed:', error);
@@ -1964,12 +2144,7 @@ const Dashboard: React.FC = () => {
               </div>
             )}
 
-            <button
-              aria-busy="false"
-              className="inline-flex items-center select-none relative font-semibold justify-center whitespace-nowrap text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border bg-secondary text-secondary-foreground hover:bg-secondary-hover px-4 py-2 h-9.5 rounded-5 gap-3"
-            >
-              <span className="truncate">Upgrade</span>
-            </button>
+           
           </div>
         </div>
 
