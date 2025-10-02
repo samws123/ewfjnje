@@ -103,7 +103,7 @@ function InviteFriends() {
       const data = await response.json();
 
       if (data.success) {
-        toast.success(`Successfully sent ${data.invitationsSent} invitation(s)!`);
+
         // Clear the email inputs
         setEmails(["", "", ""]);
       } else {

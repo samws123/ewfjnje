@@ -170,11 +170,11 @@ export const CanvasSync: React.FC<CanvasSyncProps> = ({ className = "" }) => {
       await new Promise(resolve => setTimeout(resolve, 2000));
       displayMessage('✅ Canvas sync completed successfully!');
       
-      toast.success('Canvas sync completed!');
+      
     } catch (error: any) {
       console.error('Canvas sync failed:', error);
       displayMessage(`❌ Sync failed: ${error.message}`);
-      toast.error(`Canvas sync failed: ${error.message}`);
+      
     } finally {
       setSyncing(false);
     }

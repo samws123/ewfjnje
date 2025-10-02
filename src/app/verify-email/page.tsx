@@ -75,7 +75,7 @@ export default function EmailVerification() {
       const data = await response.json();
 
       if (response.ok) {
-        toast.success(data.message);
+     
         
         // Refresh auth context to get user data
         await checkAuth();
@@ -111,7 +111,7 @@ export default function EmailVerification() {
         toast.error(data.error || 'Verification failed');
       }
     } catch (error) {
-      toast.error('An error occurred. Please try again.');
+   
     } finally {
       setIsLoading(false);
     }
@@ -135,10 +135,10 @@ export default function EmailVerification() {
         toast.success('New verification code sent');
         setCode(["", "", "", "", "", ""]);
       } else {
-        toast.error('Failed to resend code');
+        
       }
     } catch (error) {
-      toast.error('Failed to resend code');
+    
     } finally {
       setIsLoading(false);
     }

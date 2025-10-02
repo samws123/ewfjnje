@@ -20,10 +20,10 @@ export default function SignUp() {
       });
       
       if (result?.error) {
-        toast.error('Failed to sign in with Google');
+        
       }
     } catch (error) {
-      toast.error('An error occurred during Google sign in');
+   
     } finally {
       setLoading(false);
     }
@@ -42,15 +42,15 @@ export default function SignUp() {
       
       if (result?.error) {
         console.error('Microsoft sign-in error:', result.error);
-        toast.error(`Failed to sign in with Microsoft: ${result.error}`);
+        
       } else if (result?.ok) {
         console.log('Microsoft sign-in successful');
-        toast.success('Successfully signed in with Microsoft');
+      
         router.push('/dashboard');
       }
     } catch (error) {
       console.error('Microsoft sign-in exception:', error);
-      toast.error('An error occurred during Microsoft sign in');
+
     } finally {
       setLoading(false);
     }
@@ -88,12 +88,12 @@ export default function SignUp() {
       if (response.ok) {
         // Navigate to verification page with email
         router.push(`/verify-email?email=${encodeURIComponent(email)}`);
-        toast.success('Verification code sent to your email');
+      
       } else {
         toast.error(data.error || 'Failed to send verification code');
       }
     } catch (error) {
-      toast.error('An error occurred. Please try again.');
+    
     } finally {
       setLoading(false);
     }

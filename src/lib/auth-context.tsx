@@ -162,7 +162,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Use custom logout for JWT sessions
         await fetch('/api/auth/logout', { method: 'POST' });
         setUser(null);
-        toast.success('Logged out successfully');
+       
         window.location.href = '/signup';
       }
     } catch (error) {
