@@ -1,23 +1,45 @@
 'use client'
 
+import React, { useState, useEffect } from "react";
+import { toast } from "sonner";
 
-import React, { useState } from "react";
+// Chrome extension types
+declare global {
+  interface Window {
+    chrome?: {
+      runtime?: {
+        sendMessage: (extensionId: string, message: any, callback: (response: any) => void) => void;
+        lastError?: { message: string };
+      };
+    };
+  }
+}
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/textarea";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
-  DropdownMenuItem,
+  DropdownMenuItem
 } from "@/components/ui/dropdown-menu";
 // import { useNavigate } from "react-router-dom";
 import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
 import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { useAuth } from "@/lib/auth-context";
+
+
+interface SubscriptionStatus {
+  status: string;
+  isActive: boolean;
+  plan?: string;
+}
 
 const Dashboard: React.FC = () => {
   // const navigate = useNavigate();
   const router = useRouter();
+  const { user, signOut } = useAuth();
   const [inputValue, setInputValue] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
@@ -28,8 +50,354 @@ const Dashboard: React.FC = () => {
   const [theme, setTheme] = useState("light");
   const [openImport, setOpenImport] = useState(false);
   const [selectedWordLimit, setSelectedWordLimit] = useState(250);
+  const [syncing, setSyncing] = useState(false);
+  const [syncMessage, setSyncMessage] = useState("");
+  const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus | null>(null);
+  const [checkingSubscription, setCheckingSubscription] = useState(true);
+
+  //Check subscription status on component mount
+  useEffect(() => {
+    if (user) {
+      checkSubscriptionStatus();
+    }
+  }, [user]);
+
+  const checkSubscriptionStatus = async () => {
+    setCheckingSubscription(true);
+    
+    // First check if user data has subscription info (from cache)
+    if (user?.subscription_status) {
+      console.log('Using cached subscription status:', user.subscription_status);
+      const isActive = user.subscription_status === 'active';
+      
+      setSubscriptionStatus({
+        status: user.subscription_status,
+        isActive,
+        customerId: user.stripe_customer_id,
+        subscriptionId: user.stripe_subscription_id,
+        currentPeriodStart: user.subscription_current_period_start,
+        currentPeriodEnd: user.subscription_current_period_end,
+        plan: user.subscription_plan || 'monthly'
+      });
+      
+      if (!isActive) {
+        toast.error('Please subscribe to access the dashboard');
+        router.push('/invite-friends');
+        return;
+      }
+      
+      setCheckingSubscription(false);
+      return;
+    }
+
+    // Fallback to API call if no cached subscription data
+    try {
+      console.log('Fetching subscription status from API');
+      const response = await fetch('/api/stripe/subscription-status', {
+        credentials: 'include' // Ensure cookies are sent
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        setSubscriptionStatus(data.subscription);
+        
+        // If user is not subscribed, redirect to invite-friends
+        if (!data.subscription.isActive) {
+          toast.error('Please subscribe to access the dashboard');
+          router.push('/invite-friends');
+          return;
+        }
+      } else {
+        // If we can't check subscription status, redirect to invite-friends
+        toast.error('Unable to verify subscription status');
+        router.push('/invite-friends');
+        return;
+      }
+    } catch (error) {
+      console.error('Error checking subscription status:', error);
+      // If there's an error, redirect to invite-friends
+      toast.error('Unable to verify subscription status');
+      router.push('/invite-friends');
+      return;
+    } finally {
+      setCheckingSubscription(false);
+    }
+  };
+
+  // Show loading while checking subscription
+  if (checkingSubscription) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+          <p className="text-gray-600">Checking subscription status...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Extension communication configuration
+  const CONFIG = {
+    EXTENSION_ID: 'elipinieeokobcniibdafjkbifbfencb',
+    DEFAULT_BASE_URL: 'https://princeton.instructure.com',
+    TIMEOUTS: {
+      BRIDGE_DEFAULT: 8000,
+      EXTENSION_PING: 4000,
+      FINGERPRINT: 6000,
+      SYNC_CANVAS: 8000,
+      EXTRACTION_POLL: 200000
+    }
+  };
+
+  // Extension communication functions
+  const generateRequestId = () => Math.random().toString(36).substring(2, 15);
+
+  const displayMessage = (message: string) => {
+    console.log(message);
+    
+    // Show toast notifications for sync progress
+    if (message.includes('🔄')) {
+      toast.info(message);
+    } else if (message.includes('✅')) {
+      toast.success(message);
+    } else if (message.includes('❌')) {
+      toast.error(message);
+    } else if (message.includes('🔐')) {
+      toast.info(message);
+    } else {
+      toast(message);
+    }
+  };
+
+  const extensionCall = async (type: string, payload = {}, timeoutMs = CONFIG.TIMEOUTS.BRIDGE_DEFAULT) => {
+    try {
+      // Try Chrome extension first
+      return await chromeExtensionCall(type, payload, timeoutMs);
+    } catch (chromeError) {
+      console.warn('Chrome extension call failed, trying bridge:', chromeError);
+      
+      try {
+        // Fallback to bridge
+        return await bridgeCall(type, payload, timeoutMs);
+      } catch (bridgeError) {
+        console.error('Both Chrome extension and bridge calls failed');
+        throw new Error(`Extension communication failed: ${bridgeError.message}`);
+      }
+    }
+  };
+
+  const chromeExtensionCall = (type: string, payload = {}, timeoutMs = CONFIG.TIMEOUTS.BRIDGE_DEFAULT) => {
+    return new Promise((resolve, reject) => {
+      if (!window.chrome || !window.chrome.runtime) {
+        reject(new Error('Chrome runtime not available'));
+        return;
+      }
+      
+      const timer = setTimeout(() => {
+        reject(new Error('Chrome extension timeout'));
+      }, timeoutMs);
+      
+      chrome.runtime.sendMessage(
+        CONFIG.EXTENSION_ID, 
+        { type, ...payload }, 
+        (response: any) => {
+          clearTimeout(timer);
+          
+          if (chrome.runtime.lastError) {
+            reject(chrome.runtime.lastError);
+            return;
+          }
+          
+          if (!response?.ok) {
+            reject(new Error(response?.error || 'No response from extension'));
+            return;
+          }
+          
+          resolve(response);
+        }
+      );
+    });
+  };
+
+  const bridgeCall = (type: string, payload: any, timeoutMs = CONFIG.TIMEOUTS.BRIDGE_DEFAULT) => {
+    return new Promise((resolve, reject) => {
+      const reqId = generateRequestId();
+      
+      const timer = setTimeout(() => {
+        window.removeEventListener('message', onMessage);
+        reject(new Error('Bridge timeout'));
+      }, timeoutMs);
+      
+      function onMessage(event: MessageEvent) {
+        const data = event.data && event.data.__SHX_RES;
+        if (!data || data.reqId !== reqId) return;
+        
+        clearTimeout(timer);
+        window.removeEventListener('message', onMessage);
+        
+        if (data.ok) {
+          resolve(data.data);
+        } else {
+          reject(new Error(data.error || 'Bridge error'));
+        }
+      }
+      
+      window.addEventListener('message', onMessage);
+      window.postMessage({ 
+        __SHX: { type, payload, reqId } 
+      }, '*');
+    });
+  };
+
+  const testExtensionConnection = async () => {
+    try {
+      await extensionCall('PING', {}, CONFIG.TIMEOUTS.EXTENSION_PING);
+      return true;
+    } catch (error) {
+      console.warn('Extension connection test failed:', error);
+      return false;
+    }
+  };
+
+  const getExtensionFingerprint = async () => {
+    try {
+      const fingerprint = await extensionCall('TEST_FINGERPRINT', {}, CONFIG.TIMEOUTS.FINGERPRINT);
+      return fingerprint;
+    } catch (error) {
+      console.warn('Failed to get extension fingerprint:', error);
+      return null;
+    }
+  };
+
+  const handleCanvasSync = async () => {
+    setSyncing(true);
+    setSyncMessage('');
+
+    try {
+      displayMessage('🔄 Checking extension connection…');
+      
+      // Test extension connection
+      const connected = await testExtensionConnection();
+      if (!connected) {
+        throw new Error('Extension connection failed');
+      }
+      
+      displayMessage('✅ Extension connected. Starting Canvas sync…');
+      
+      // Get extension fingerprint for verification
+      const fingerprint = await getExtensionFingerprint();
+      if (fingerprint?.ok) {
+        displayMessage(`🔐 Fingerprint: ${fingerprint.name} (len ${fingerprint.length}, sha256 ${fingerprint.sha256_12})`);
+      }
+
+           // Get user's base URL from database
+           displayMessage('🔄 Getting user configuration…');
+           const configResponse = await fetch('/api/user/base-url');
+           if (!configResponse.ok) {
+             throw new Error('Failed to get user configuration');
+           }
+           const config = await configResponse.json();
+           const baseUrl = config.baseUrl;
+          
+     
+           // Generate user token
+           displayMessage('🔑 Generating authentication token…');
+           const tokenResponse = await fetch('/api/auth/token', { 
+             method: 'POST',
+             headers: { 'Content-Type': 'application/json' }
+           });
+           if (!tokenResponse.ok) {
+             throw new Error('Failed to generate authentication token');
+           }
+           const tokenData = await tokenResponse.json();
+           const userToken = tokenData.token;
+     
+           let res;
+           try {
+             res = await new Promise((resolve, reject) => {
+               const t = setTimeout(() => reject(new Error('timeout')), 8000);
+               chrome.runtime.sendMessage( CONFIG.EXTENSION_ID, { type: 'SYNC_CANVAS', userToken: userToken, apiEndpoint: 'http://localhost:3000/api', baseUrl: baseUrl }, (r) => {
+                 clearTimeout(t);
+                 if (chrome.runtime.lastError) return reject(chrome.runtime.lastError);
+                 resolve(r);
+               });
+             });
+           } catch {
+             res = await bridgeCall('SYNC_CANVAS', { userToken: userToken, apiEndpoint: 'http://localhost:3000/api', baseUrl: baseUrl });
+           }
+      console.log(res)
+      if (res?.ok) {
+        console.log(res)
+      
+      //  Import courses from Canvas
+        displayMessage('📥 Importing courses from Canvas…');
+        const importResponse = await fetch('/api/sync/import-courses', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${userToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        const importResult = await importResponse.json();
+        
+        if (importResponse.ok && importResult?.ok) {
+          displayMessage(`📥 Imported ${importResult.imported} courses from ${importResult.baseUrl}`);
+        } else {
+          throw new Error(`Failed to import courses: ${importResult.error || 'Unknown error'}`);
+        }
+                // Import assignments from Canvas
+                displayMessage('📚 Importing assignments from Canvas…');
+                const assignmentResponse = await fetch('/api/sync/import-assignments', {
+                  method: 'POST',
+                  headers: {
+                    'Authorization': `Bearer ${userToken}`,
+                    'Content-Type': 'application/json'
+                  }
+                });
+                
+                const assignmentResult = await assignmentResponse.json();
+                
+                if (assignmentResponse.ok && assignmentResult?.ok) {
+                  displayMessage(`📚 Imported ${assignmentResult.imported} assignments from ${assignmentResult.baseUrl}`);
+                } else {
+                  throw new Error(`Failed to import assignments: ${assignmentResult.error || 'Unknown error'}`);
+                }
+                        // Import announcements from Canvas
+        displayMessage('📢 Importing announcements from Canvas…');
+        const announcementResponse = await fetch('/api/sync/import-announcements', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${userToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        const announcementResult = await announcementResponse.json();
+        
+        if (announcementResponse.ok && announcementResult?.ok) {
+          displayMessage(`📢 Imported ${announcementResult.imported} announcements from ${announcementResult.baseUrl}`);
+        } else {
+          throw new Error(`Failed to import announcements: ${announcementResult.error || 'Unknown error'}`);
+        }
+                // Call Canvas sync API endpoint
+      displayMessage('🔄 Getting Canvas configuration…');
+      
+    
+    }
+      toast.success('Canvas sync completed!');
+    } catch (error: any) {
+      console.error('Canvas sync failed:', error);
+      displayMessage(`❌ Sync failed: ${error.message}`);
+      toast.error(`Canvas sync failed: ${error.message}`);
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-white flex font-inter antialiased">
+    <ProtectedRoute requireAuth={true} redirectTo="/signup">
+      <div className="min-h-screen bg-white flex font-inter antialiased">
       {/* Sidebar */}
       {sidebarVisible && (
         <div className="w-64 bg-gray-50 border-r border-gray-200 pt-4 flex flex-col">
@@ -45,7 +413,7 @@ const Dashboard: React.FC = () => {
                     type="button"
                   >
                     <span className="truncate">
-                      <span className="truncate">jasara.pauling</span>
+                      <span className="truncate">{user?.name || user?.email}</span>
                     </span>
                     <span className="ml-auto">
                       <span className="shrink-0">
@@ -73,14 +441,14 @@ const Dashboard: React.FC = () => {
                     <div>
                       <div className="flex flex-row w-full gap-4 items-center">
                         <p className="text-sm font-semibold text-text-primary">
-                          taha.h5363
+                          {user?.name || user?.email?.split('@')[0]}
                         </p>
                         <div className="text-xs font-semibold text-blue bg-blue/10 py-1 px-2 rounded-2">
                           Free
                         </div>
                       </div>
                       <p className="text-sm font-medium text-text-secondary">
-                        taha.h5363@gmail.com
+                        {user?.email}
                       </p>
                     </div>
                   </div>
@@ -401,7 +769,7 @@ const Dashboard: React.FC = () => {
                     <button
                       aria-busy="false"
                       className="select-none relative whitespace-nowrap ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border text-text-primary hover:bg-control-primary data-[highlighted]:bg-popover-hover data-[highlighted]:text-accent-foreground data-[state=open]:bg-popover-hover data-[state=highlighted]:bg-popover-hover group-data-[highlighted]:bg-popover-hover group-data-[highlighted]:text-accent-foreground group-focus:bg-popover-hover group-focus:text-accent-foreground h-[28px] px-1.5 py-2 text-sm rounded-4 font-medium gap-3 flex w-full flex-row justify-start items-center"
-                      onClick={() => router.push("/")}
+                      onClick={signOut}
                     >
                       <span className="shrink-0">
                         <svg
@@ -1733,12 +2101,50 @@ const Dashboard: React.FC = () => {
             )}
           </div>
           <div className="flex flex-row items-center gap-6 ml-auto">
+            {/* Canvas Sync Button */}
             <button
               aria-busy="false"
               className="inline-flex items-center select-none relative font-semibold justify-center whitespace-nowrap text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border bg-secondary text-secondary-foreground hover:bg-secondary-hover px-4 py-2 h-9.5 rounded-5 gap-3"
+              onClick={handleCanvasSync}
+              disabled={syncing}
             >
-              <span className="truncate">Upgrade</span>
+              {syncing ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                  <span className="truncate">Syncing...</span>
+                </>
+              ) : (
+                <>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="lucide lucide-refresh-cw"
+                  >
+                    <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+                    <path d="M21 3v5h-5"></path>
+                    <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+                    <path d="M3 21v-5h5"></path>
+                  </svg>
+                  <span className="truncate">Refresh Canvas</span>
+                </>
+              )}
             </button>
+
+            {/* Sync Status Message */}
+            {syncMessage && (
+              <div className="text-sm text-gray-600 text-center p-2 bg-gray-50 rounded-md max-w-md">
+                {syncMessage}
+              </div>
+            )}
+
+           
           </div>
         </div>
 
@@ -2085,7 +2491,6 @@ const Dashboard: React.FC = () => {
                         </svg>
                       )}
                     </button>
-                  </div>
                 </div>
               </div>
             </div>
@@ -2093,6 +2498,8 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
     </div>
+    </div>
+    </ProtectedRoute>
   );
 };
 

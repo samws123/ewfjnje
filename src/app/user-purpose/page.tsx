@@ -1,83 +1,225 @@
 'use client'
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useLayoutEffect } from "react";
+
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { useAuth } from "@/lib/auth-context";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+
+interface School {
+  id: string;
+  lms: string;
+  base_url: string;
+}
 
 export default function UserPurpose() {
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [selectedSchool, setSelectedSchool] = useState<string>("");
-  const [filteredSchools, setFilteredSchools] = useState<string[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
+  const [checkingProfile, setCheckingProfile] = useState<boolean>(true);
+  const [selectedSchool, setSelectedSchool] = useState<School | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredSchools, setFilteredSchools] = useState<School[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { user, loading: authLoading, signOut } = useAuth();
+
+
+  const schools: School[] = [
+    { id: '1', name: 'Stanford University', lms: 'canvas', base_url: 'https://canvas.stanford.edu' },
+    { id: '2', name: 'Massachusetts Institute of Technology', lms: 'canvas', base_url: 'https://canvas.mit.edu' },
+    { id: '3', name: 'UC Berkeley (bCourses)', lms: 'canvas', base_url: 'https://bcourses.berkeley.edu' },
+    { id: '4', name: 'UCLA (Bruin Learn)', lms: 'canvas', base_url: 'https://bruinlearn.ucla.edu' },
+    { id: '5', name: 'University of Chicago', lms: 'canvas', base_url: 'https://canvas.uchicago.edu' },
+    { id: '6', name: 'Yale University', lms: 'canvas', base_url: 'https://canvas.yale.edu' },
+    { id: '7', name: 'Columbia University (CourseWorks)', lms: 'canvas', base_url: 'https://courseworks.columbia.edu' },
+    { id: '8', name: 'Princeton University', lms: 'canvas', base_url: 'https://princeton.instructure.com' },
+    { id: '9', name: 'University of Pennsylvania', lms: 'canvas', base_url: 'https://canvas.upenn.edu' },
+    { id: '10', name: 'University of Michigan', lms: 'canvas', base_url: 'https://canvas.umich.edu' },
+    { id: '11', name: 'Penn State', lms: 'canvas', base_url: 'https://psu.instructure.com' },
+    { id: '12', name: 'University of Florida', lms: 'canvas', base_url: 'https://ufl.instructure.com' },
+    { id: '13', name: 'University of Utah', lms: 'canvas', base_url: 'https://utah.instructure.com' }
+  ];
+
+  useLayoutEffect(() => {
+    // Check if user is authenticated
+    if (!authLoading && !user) {
+      router.push('/signup');
+      return;
+    }
+    
+    // Check if user already has a school selected
+    if (user) {
+      checkExistingSchoolSelection();
+    }
+  }, [user, authLoading, router]);
+
+  const checkSubscriptionAndRedirect = async () => {
+    // First check cached user data
+    if (user?.subscription_status) {
+      console.log('Using cached subscription status for routing:', user.subscription_status);
+      const isActive = user.subscription_status === 'active';
+      
+      if (isActive) {
+        router.push('/dashboard');
+      } else {
+        router.push('/invite-friends');
+      }
+      return;
+    }
+
+    // Fallback to API call if no cached subscription data
+    try {
+      console.log('Fetching subscription status from API for routing');
+      const response = await fetch('/api/stripe/subscription-status', {
+        credentials: 'include'
+      });
+      const data = await response.json();
+      
+      if (data.success && data.subscription.isActive) {
+        // User has active subscription, go to extension installation
+        router.push('/dashboard');
+      } else {
+        // User needs to subscribe, go to invite-friends
+        router.push('/invite-friends');
+      }
+    } catch (error) {
+      console.error('Error checking subscription status:', error);
+      // Default to invite-friends if there's an error
+      router.push('/invite-friends');
+    }
+  };
+
+  const checkExistingSchoolSelection = async () => {
+    try {
+      const response = await fetch('/api/user/profile');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.profile && data.profile.school_id) {
+          // User already has a school selected, check subscription status
+          await checkSubscriptionAndRedirect();
+          return;
+        }
+        else{
+          setCheckingProfile(false);
+        }
+      }
+    } catch (error) {
+      console.error('Error checking user profile:', error);
+      // Continue with school selection if there's an error
+    } finally {
+
+    }
+  };
+
+  
+  
+
   const handleInputBlur = () => {
     setTimeout(() => {
       setShowSuggestions(false);
     }, 150);
-  }
-  const schools = [
-    "Harvard University",
-    "Stanford University",
-    "Massachusetts Institute of Technology (MIT)",
-    "University of California, Berkeley",
-    "Yale University",
-    "Princeton University",
-    "Columbia University",
-    "University of Chicago",
-    "University of Pennsylvania",
-    "California Institute of Technology (Caltech)",
-    "Duke University",
-    "Johns Hopkins University",
-    "Northwestern University",
-    "Dartmouth College",
-    "Brown University",
-    "Cornell University",
-    "Rice University",
-    "University of Notre Dame",
-    "Vanderbilt University",
-    "Washington University in St. Louis",
-    "Emory University",
-    "Georgetown University",
-    "Carnegie Mellon University",
-    "University of Southern California",
-    "University of California, Los Angeles (UCLA)",
-    "Tufts University",
-    "Wake Forest University",
-    "University of Michigan",
-    "Boston College",
-    "New York University",
-  ];
+  };
+
+  const handleInputFocus = () => {
+    // Don't show suggestions if a school is already selected
+    if (selectedSchool) {
+      return;
+    }
+    
+    if (searchQuery.length === 0) {
+      // Show all schools when input is focused but empty
+      setFilteredSchools(schools.slice(0, 8));
+      setShowSuggestions(true);
+    } else if (searchQuery.length >= 1) {
+      setShowSuggestions(true);
+    }
+  };
 
   useEffect(() => {
-    if (searchQuery.length > 0) {
-      const filtered = schools.filter((school) =>
-        school.toLowerCase().includes(searchQuery.toLowerCase())
+    // Don't show suggestions if a school is already selected
+    if (selectedSchool) {
+      setShowSuggestions(false);
+      return;
+    }
+    
+    if (searchQuery.length >= 1) {
+      const filtered = schools.filter(school =>
+        school.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
-      setFilteredSchools(filtered.slice(0, 5));
+      setFilteredSchools(filtered.slice(0, 8)); // Show up to 8 suggestions
       setShowSuggestions(true);
     } else {
-      setFilteredSchools([]);
       setShowSuggestions(false);
     }
-  }, [searchQuery]);
+  }, [searchQuery, selectedSchool]);
 
-  const handleSchoolSelect = (school: string) => {
+  const handleSchoolSelect = (school: School) => {
+    console.log('School selected:', school);
     setSelectedSchool(school);
-    setSearchQuery(school);
+    setSearchQuery(school.name);
     setShowSuggestions(false);
   };
 
-  const handleContinue = () => {
-    if (selectedSchool) {
-      router.push("/invite-friends");
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    
+    // If user starts typing after selecting a school, clear the selection
+    if (selectedSchool && value !== selectedSchool.name) {
+      setSelectedSchool(null);
     }
   };
 
+
+  const handleContinue = async () => {
+    if (!selectedSchool) return;
+
+    setLoading(true);
+    try {
+      const response = await fetch('/api/user/select-school', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          schoolName: selectedSchool.name,
+          baseUrl: selectedSchool.base_url
+        }),
+      });
+
+      if (response.ok) {
+        toast.success('School selection saved!');
+        await checkSubscriptionAndRedirect();
+      } else {
+        const data = await response.json();
+        toast.error(data.error || 'Failed to save school selection');
+      }
+    } catch (error) {
+      toast.error('An error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Show loading screen while checking auth or profile
+  if (authLoading || checkingProfile) {
+    return (
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center px-4">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div
-      className="min-h-screen bg-white flex flex-col items-center justify-center px-4 font-inter font-medium leading-6 tracking-[-0.32px] antialiased"
-      style={{
+    <ProtectedRoute requireAuth={true} redirectTo="/signup">
+      <div
+        className="min-h-screen bg-white flex flex-col items-center justify-center px-4 font-inter font-medium leading-6 tracking-[-0.32px] antialiased"
+        style={{
         colorScheme: "light",
         fontFeatureSettings: "normal",
         fontVariationSettings: "normal",
@@ -135,8 +277,8 @@ export default function UserPurpose() {
             type="text"
             placeholder="Find your institution"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onFocus={() => searchQuery && setShowSuggestions(true)}
+            onChange={handleInputChange}
+            onFocus={handleInputFocus}
             onBlur={handleInputBlur}
             style={{
               fontSize: "14px",
@@ -149,58 +291,66 @@ export default function UserPurpose() {
             <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-2xl shadow-lg z-10 max-h-60 overflow-y-auto">
               {filteredSchools.map((school, index) => (
                 <button
-                  key={index}
-                  onClick={() => handleSchoolSelect(school)}
+                  key={school.id}
+                  onMouseDown={(e) => {
+                    e.preventDefault(); // Prevent input from losing focus
+                    handleSchoolSelect(school);
+            
+                  }}
                   style={{
                     fontSize: "14px",
                   }}
                   className="w-full px-6 py-5 text-left text-base font-normal text-gray-900 hover:bg-gray-50 first:rounded-t-2xl last:rounded-b-2xl transition-colors"
                 >
-                  {school}
+                  {school.name}
                 </button>
               ))}
             </div>
           )}
         </div>
 
+
+
+
         {/* Continue Button */}
         <Button
           variant="primary"
           size="lg"
-          className={`w-full py-4 text-base font-medium !rounded-xl mb-8 transition-all duration-200 ${selectedSchool
+          className={`w-full mb-4 ${
+              selectedSchool
               ? "bg-black text-white hover:bg-gray-800"
               : "inline-flex items-center select-none relative justify-center whitespace-nowrap ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border bg-control-primary text-text-primary hover:bg-control-secondary px-1.5 py-2 text-sm rounded-4 font-medium gap-3 h-14 rounded-6 hover:scale-[1.02] ease-in transition-transform"
             }`}
           onClick={handleContinue}
-          disabled={!selectedSchool}
+          disabled={!selectedSchool || loading}
         >
-          Continue
+          {loading ? 'Saving...' : 'Continue'}
         </Button>
 
         {/* Join Text */}
         <p className="text-sm text-text-primary mt-9 mb-8 text-center">
-          Join 100k+ students
+          Join 100k+ students and start tracking your progress today!
         </p>
 
-        {/* Email Info */}
+        {/* User Info */}
         <div className="flex flex-col items-center justify-center py-8 text-text-primary w-120 text-center text-sm">
           <p>
             Continuing as{" "}
             <span className="font-medium text-black">
-              aakashgoel2040@gmail.com
+              {user?.name || user?.email}
             </span>
           </p>
           <p>
-            Log in with another email{" "}
             <button
-              onClick={() => router.push("/signup")}
+              onClick={signOut}
               className="text-blue-600 underline hover:text-blue-700"
             >
-              here
+              Logout
             </button>
           </p>
         </div>
       </div>
     </div>
+    </ProtectedRoute>
   );
 }

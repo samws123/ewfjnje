@@ -3,12 +3,12 @@ import { Inter } from 'next/font/google'
 // import './globals.css'
 import { Providers } from './providers'
 import "../index.css";
+import '@/lib/init-db'; // Initialize database on app startup
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'pixel-perfect-playbook-66',
-  description: 'Lovable Generated Project',
   authors: [{ name: 'Lovable' }],
   openGraph: {
     title: 'pixel-perfect-playbook-66',
