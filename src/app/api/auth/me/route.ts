@@ -65,7 +65,11 @@ export async function GET(request: NextRequest) {
         id: user.id,
         email: user.email,
         name: user.name,
-        emailVerified: user.email_verified
+        emailVerified: user.email_verified,
+        subscription_status: user.subscription_status || 'inactive',
+        subscription_plan: user.subscription_plan || 'monthly',
+        subscription_current_period_start: user.subscription_current_period_start,
+        subscription_current_period_end: user.subscription_current_period_end
       }
     });
 
