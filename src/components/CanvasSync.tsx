@@ -72,14 +72,14 @@ export const CanvasSync: React.FC<CanvasSyncProps> = ({ className = "" }) => {
         reject(new Error('Chrome extension timeout'));
       }, timeoutMs);
       
-      chrome.runtime.sendMessage(
+      window.chrome.runtime.sendMessage(
         CONFIG.EXTENSION_ID, 
         { type, ...payload }, 
         (response: any) => {
           clearTimeout(timer);
           
-          if (chrome.runtime.lastError) {
-            reject(chrome.runtime.lastError);
+          if (window.chrome.runtime.lastError) {
+            reject(window.chrome.runtime.lastError);
             return;
           }
           
@@ -161,8 +161,8 @@ export const CanvasSync: React.FC<CanvasSyncProps> = ({ className = "" }) => {
       
       // Get extension fingerprint for verification
       const fingerprint = await getExtensionFingerprint();
-      if (fingerprint?.ok) {
-        displayMessage(`🔐 Fingerprint: ${fingerprint.name} (len ${fingerprint.length}, sha256 ${fingerprint.sha256_12})`);
+      if ((fingerprint as any)?.ok) {
+        displayMessage(`🔐 Fingerprint: ${(fingerprint as any).name} (len ${(fingerprint as any).length}, sha256 ${(fingerprint as any).sha256_12})`);
       }
 
       // Here you would typically call the actual sync function
@@ -170,11 +170,11 @@ export const CanvasSync: React.FC<CanvasSyncProps> = ({ className = "" }) => {
       await new Promise(resolve => setTimeout(resolve, 2000));
       displayMessage('✅ Canvas sync completed successfully!');
       
-      toast.success('Canvas sync completed!');
+      
     } catch (error: any) {
       console.error('Canvas sync failed:', error);
       displayMessage(`❌ Sync failed: ${error.message}`);
-      toast.error(`Canvas sync failed: ${error.message}`);
+      
     } finally {
       setSyncing(false);
     }

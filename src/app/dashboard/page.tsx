@@ -34,6 +34,10 @@ interface SubscriptionStatus {
   status: string;
   isActive: boolean;
   plan?: string;
+  customerId?: string;
+  subscriptionId?: string;
+  currentPeriodStart?: string;
+  currentPeriodEnd?: string;
 }
 
 const Dashboard: React.FC = () => {
@@ -54,6 +58,12 @@ const Dashboard: React.FC = () => {
   const [syncMessage, setSyncMessage] = useState("");
   const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus | null>(null);
   const [checkingSubscription, setCheckingSubscription] = useState(true);
+  
+  // Chat-related state
+  const [messages, setMessages] = useState<Array<{id: string, role: 'user' | 'assistant', content: string, timestamp: Date}>>([]);
+  const [isThinking, setIsThinking] = useState(false);
+  const [hasStartedChat, setHasStartedChat] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   //Check subscription status on component mount
   useEffect(() => {
@@ -68,11 +78,11 @@ const Dashboard: React.FC = () => {
     // First check if user data has subscription info (from cache)
     if (user?.subscription_status) {
       console.log('Using cached subscription status:', user.subscription_status);
-      const isActive = user.subscription_status === 'active';
+      const isInActive = user.subscription_status === 'inactive';
       
       setSubscriptionStatus({
         status: user.subscription_status,
-        isActive,
+        isActive:!isInActive,
         customerId: user.stripe_customer_id,
         subscriptionId: user.stripe_subscription_id,
         currentPeriodStart: user.subscription_current_period_start,
@@ -80,8 +90,8 @@ const Dashboard: React.FC = () => {
         plan: user.subscription_plan || 'monthly'
       });
       
-      if (!isActive) {
-        toast.error('Please subscribe to access the dashboard');
+      if (isInActive) {
+        
         router.push('/invite-friends');
         return;
       }
@@ -130,7 +140,7 @@ const Dashboard: React.FC = () => {
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
-          <p className="text-gray-600">Checking subscription status...</p>
+          <p className="text-gray-600">Loading...</p>
         </div>
       </div>
     );
@@ -156,16 +166,196 @@ const Dashboard: React.FC = () => {
     console.log(message);
     
     // Show toast notifications for sync progress
-    if (message.includes('🔄')) {
-      toast.info(message);
-    } else if (message.includes('✅')) {
-      toast.success(message);
-    } else if (message.includes('❌')) {
-      toast.error(message);
-    } else if (message.includes('🔐')) {
-      toast.info(message);
+    // if (message.includes('🔄')) {
+    //   toast.info(message);
+    // } else if (message.includes('✅')) {
+    //   toast.success(message);
+    // } else if (message.includes('❌')) {
+    //   toast.error(message);
+    // } else if (message.includes('🔐')) {
+    //   toast.info(message);
+    // } else {
+    //   toast(message);
+    // }
+  };
+
+  // Chat functionality
+  const handleSendMessage = async () => {
+    if (!inputValue.trim() || isSending) return;
+    
+    const userMessage = {
+      id: Date.now().toString(),
+      role: 'user' as const,
+      content: inputValue.trim(),
+      timestamp: new Date()
+    };
+    
+    // Trigger smooth transition before adding message
+    if (!hasStartedChat) {
+      setIsTransitioning(true);
+      setInputValue("");
+      
+      // Start the transition immediately
+      setTimeout(async () => {
+        setMessages(prev => [...prev, userMessage]);
+        setHasStartedChat(true);
+        setIsSending(true);
+        setIsThinking(true);
+        
+        // Complete transition
+        setTimeout(() => setIsTransitioning(false), 200);
+        
+        // Make API call after transition starts
+        await makeApiCall(userMessage.content);
+      }, 50);
     } else {
-      toast(message);
+      setMessages(prev => [...prev, userMessage]);
+      setInputValue("");
+      setIsSending(true);
+      setIsThinking(true);
+      
+      // Make API call immediately
+      await makeApiCall(userMessage.content);
+    }
+  };
+
+  // Function to parse and render HTML-like content
+  const parseMessageContent = (content: string) => {
+    // Clean up the content first
+    let cleanContent = content
+      // Remove HTML code block markers
+      .replace(/```html\s*/gi, '')
+      .replace(/```\s*/g, '')
+      // Remove error messages and unwanted patterns
+      .replace(/ERROR:\s*INVALID\s*INPUT/gi, '')
+      .replace(/•The input provided does not appear to be a valid question or request\./gi, '')
+      .replace(/•Please provide a clear question or topic for assistance\./gi, '')
+      // Clean up extra whitespace and newlines
+      .replace(/\n\s*\n/g, '\n')
+      .trim();
+
+    // Simple HTML parser for basic tags
+    const htmlPattern = /<(h1|h2|h3|ul|li|p|strong|em)(?:\s[^>]*)?>([\s\S]*?)<\/\1>/gi;
+    const parts = [];
+    let lastIndex = 0;
+    let match;
+
+    while ((match = htmlPattern.exec(cleanContent)) !== null) {
+      // Add text before the match
+      if (match.index > lastIndex) {
+        const textBefore = cleanContent.slice(lastIndex, match.index);
+        if (textBefore.trim()) {
+          parts.push({ type: 'text', content: textBefore });
+        }
+      }
+
+      const tag = match[1].toLowerCase();
+      const innerContent = match[2];
+
+      parts.push({ type: tag, content: innerContent });
+      lastIndex = match.index + match[0].length;
+    }
+
+    // Add remaining text
+    if (lastIndex < cleanContent.length) {
+      const remainingText = cleanContent.slice(lastIndex);
+      if (remainingText.trim()) {
+        parts.push({ type: 'text', content: remainingText });
+      }
+    }
+
+    return parts.length > 0 ? parts : [{ type: 'text', content: cleanContent }];
+  };
+
+  // Function to render parsed content
+  const renderMessageContent = (content: string) => {
+    const parts = parseMessageContent(content);
+    
+    return parts.map((part, index) => {
+      switch (part.type) {
+        case 'h1':
+          return <h1 key={index} className="text-xl font-bold text-gray-900 mb-3 mt-2">{part.content}</h1>;
+        case 'h2':
+          return <h2 key={index} className="text-lg font-semibold text-gray-800 mb-2 mt-2">{part.content}</h2>;
+        case 'h3':
+          return <h3 key={index} className="text-base font-medium text-gray-800 mb-2 mt-1">{part.content}</h3>;
+        case 'ul':
+          // Parse list items within ul
+          const listItems = part.content.match(/<li(?:\s[^>]*)?>([\s\S]*?)<\/li>/gi) || [];
+          return (
+            <ul key={index} className="list-none space-y-1 mb-3 ml-2">
+              {listItems.map((item, liIndex) => {
+                const liContent = item.replace(/<\/?li(?:\s[^>]*)?>/gi, '').replace(/^\s*-\s*/, '');
+                return (
+                  <li key={liIndex} className="flex items-start">
+                    <span className="text-gray-500 mr-2 mt-0.5">•</span>
+                    <span className="text-sm text-gray-700">{liContent}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          );
+        case 'li':
+          // Handle standalone li (shouldn't happen with proper ul parsing)
+          const liContent = part.content.replace(/^\s*-\s*/, '');
+          return (
+            <div key={index} className="flex items-start mb-1">
+              <span className="text-gray-500 mr-2 mt-0.5">•</span>
+              <span className="text-sm text-gray-700">{liContent}</span>
+            </div>
+          );
+        case 'p':
+          return <p key={index} className="text-sm text-gray-700 mb-2">{part.content}</p>;
+        case 'strong':
+          return <strong key={index} className="font-semibold">{part.content}</strong>;
+        case 'em':
+          return <em key={index} className="italic">{part.content}</em>;
+        default:
+          return <span key={index} className="text-sm whitespace-pre-wrap">{part.content}</span>;
+      }
+    });
+  };
+
+  const makeApiCall = async (messageContent: string) => {
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user?.id || 'anonymous',
+          message: messageContent,
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      const assistantMessage = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant' as const,
+        content: data.text,
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, assistantMessage]);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      const errorMessage = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant' as const,
+        content: 'Sorry, I encountered an error while processing your message. Please try again.',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+      toast.error('Failed to send message');
+    } finally {
+      setIsSending(false);
+      setIsThinking(false);
     }
   };
 
@@ -197,14 +387,14 @@ const Dashboard: React.FC = () => {
         reject(new Error('Chrome extension timeout'));
       }, timeoutMs);
       
-      chrome.runtime.sendMessage(
+      window.chrome!.runtime!.sendMessage(
         CONFIG.EXTENSION_ID, 
         { type, ...payload }, 
         (response: any) => {
           clearTimeout(timer);
           
-          if (chrome.runtime.lastError) {
-            reject(chrome.runtime.lastError);
+          if (window.chrome!.runtime!.lastError) {
+            reject(window.chrome!.runtime!.lastError);
             return;
           }
           
@@ -286,8 +476,11 @@ const Dashboard: React.FC = () => {
       
       // Get extension fingerprint for verification
       const fingerprint = await getExtensionFingerprint();
-      if (fingerprint?.ok) {
-        displayMessage(`🔐 Fingerprint: ${fingerprint.name} (len ${fingerprint.length}, sha256 ${fingerprint.sha256_12})`);
+      if (fingerprint && typeof fingerprint === 'object' && 'ok' in fingerprint) {
+        const fp = fingerprint as any;
+        if (fp.ok) {
+          displayMessage(`🔐 Fingerprint: ${fp.name} (len ${fp.length}, sha256 ${fp.sha256_12})`);
+        }
       }
 
            // Get user's base URL from database
@@ -316,9 +509,9 @@ const Dashboard: React.FC = () => {
            try {
              res = await new Promise((resolve, reject) => {
                const t = setTimeout(() => reject(new Error('timeout')), 8000);
-               chrome.runtime.sendMessage( CONFIG.EXTENSION_ID, { type: 'SYNC_CANVAS', userToken: userToken, apiEndpoint: 'http://localhost:3000/api', baseUrl: baseUrl }, (r) => {
+               window.chrome!.runtime!.sendMessage( CONFIG.EXTENSION_ID, { type: 'SYNC_CANVAS', userToken: userToken, apiEndpoint: 'http://localhost:3000/api', baseUrl: baseUrl }, (r) => {
                  clearTimeout(t);
-                 if (chrome.runtime.lastError) return reject(chrome.runtime.lastError);
+                 if (window.chrome!.runtime!.lastError) return reject(window.chrome!.runtime!.lastError);
                  resolve(r);
                });
              });
@@ -385,11 +578,11 @@ const Dashboard: React.FC = () => {
       
     
     }
-      toast.success('Canvas sync completed!');
+      // toast.success('Canvas sync completed!');
     } catch (error: any) {
       console.error('Canvas sync failed:', error);
       displayMessage(`❌ Sync failed: ${error.message}`);
-      toast.error(`Canvas sync failed: ${error.message}`);
+      // toast.error(`Canvas sync failed: ${error.message}`);
     } finally {
       setSyncing(false);
     }
@@ -397,10 +590,10 @@ const Dashboard: React.FC = () => {
 
   return (
     <ProtectedRoute requireAuth={true} redirectTo="/signup">
-      <div className="min-h-screen bg-white flex font-inter antialiased">
-      {/* Sidebar */}
-      {sidebarVisible && (
-        <div className="w-64 bg-gray-50 border-r border-gray-200 pt-4 flex flex-col">
+      <div className="h-screen bg-white flex font-inter antialiased overflow-hidden">
+        {/* Sidebar */}
+        {sidebarVisible && (
+        <div className="w-64 bg-gray-50 border-r border-gray-200 pt-4 flex flex-col h-full">
           <div className="bg-background-primary overflow-hidden group/sidebar h-full min-h-0  flex flex-col w-full z-50">
             <div className="flex items-center mb-5 px-4">
               <DropdownMenu>
@@ -2065,19 +2258,19 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
         </div>
-      )}
+        )}
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        {/* Header */}
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col relative">
+          {/* Header */}
 
-        <div className="sticky top-0 z-10 pl-6 pr-4 py-4 h-[45px] flex-shrink-0 w-full flex flex-row justify-between items-center bg-background-primary">
-          <div className="flex items-center gap-4">
-            {!sidebarVisible && (
-              <button
-                aria-busy="false"
-                className="inline-flex items-center select-none relative font-semibold justify-center whitespace-nowrap text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border text-text-primary hover:bg-control-primary data-[highlighted]:bg-popover-hover data-[highlighted]:text-accent-foreground data-[state=open]:bg-popover-hover data-[state=highlighted]:bg-popover-hover group-data-[highlighted]:bg-popover-hover group-data-[highlighted]:text-accent-foreground group-focus:bg-popover-hover group-focus:text-accent-foreground h-11 w-11 rounded-4"
-                onClick={() => setSidebarVisible(true)}
+          <div className="sticky top-0 z-10 pl-6 pr-4 py-4 h-[45px] flex-shrink-0 w-full flex flex-row justify-between items-center bg-background-primary">
+            <div className="flex items-center gap-4">
+              {!sidebarVisible && (
+                <button
+                  aria-busy="false"
+                  className="inline-flex items-center select-none relative font-semibold justify-center whitespace-nowrap text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border text-text-primary hover:bg-control-primary data-[highlighted]:bg-popover-hover data-[highlighted]:text-accent-foreground data-[state=open]:bg-popover-hover data-[state=highlighted]:bg-popover-hover group-data-[highlighted]:bg-popover-hover group-data-[highlighted]:text-accent-foreground group-focus:bg-popover-hover group-focus:text-accent-foreground h-11 w-11 rounded-4"
+                  onClick={() => setSidebarVisible(true)}
               >
                 <span className="truncate">
                   <svg
@@ -2096,16 +2289,16 @@ const Dashboard: React.FC = () => {
                     <rect width="18" height="18" x="3" y="3" rx="2"></rect>
                     <path d="M9 3v18"></path>
                   </svg>
-                </span>
-              </button>
-            )}
-          </div>
-          <div className="flex flex-row items-center gap-6 ml-auto">
-            {/* Canvas Sync Button */}
-            <button
-              aria-busy="false"
-              className="inline-flex items-center select-none relative font-semibold justify-center whitespace-nowrap text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border bg-secondary text-secondary-foreground hover:bg-secondary-hover px-4 py-2 h-9.5 rounded-5 gap-3"
-              onClick={handleCanvasSync}
+                  </span>
+                </button>
+              )}
+            </div>
+            <div className="flex flex-row items-center gap-6 ml-auto">
+              {/* Canvas Sync Button */}
+              <button
+                aria-busy="false"
+                className="inline-flex items-center select-none relative font-semibold justify-center whitespace-nowrap text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border bg-secondary text-secondary-foreground hover:bg-secondary-hover px-4 py-2 h-9.5 rounded-5 gap-3"
+                onClick={handleCanvasSync}
               disabled={syncing}
             >
               {syncing ? (
@@ -2213,11 +2406,68 @@ const Dashboard: React.FC = () => {
         </div> */}
 
         {/* Main Content Area */}
-        <div className="flex-1 flex flex-col items-center justify-center p-8">
-          <div className="max-w-4xl w-full text-center space-y-8">
-            {/* GPT-Style Chat Input */}
-            <div className="max-w-[44rem] w-full p-10 pt-20 flex flex-col gap-10 mx-auto pb-24 relative">
-              <div className="relative border-2 border-gray-100 rounded-2xl bg-white shadow-sm flex z-0 flex-col justify-between gap-2 rounded-8 shadow-feint p-[1px] bg-popover-hover-solid ">
+        <div className="flex-1 flex flex-col relative overflow-hidden">
+          {/* Welcome Message - Absolutely positioned for smooth transition */}
+          <div className={`absolute inset-0 flex items-center justify-center transition-all duration-700 ease-in-out transform ${
+            hasStartedChat || isTransitioning 
+              ? 'opacity-0 pointer-events-none translate-y-[-20px]' 
+              : 'opacity-100 translate-y-0'
+          }`}>
+           
+          </div>
+
+          {/* Chat Messages Area */}
+          <div className={`flex-1 overflow-y-auto transition-all duration-700 ease-in-out ${
+            hasStartedChat ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          } ${hasStartedChat ? 'pb-32' : ''}`}>
+            <div className="px-4 py-6">
+              <div className="max-w-3xl mx-auto space-y-6">
+                {messages.map((message) => (
+                  <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`max-w-[85%] rounded-lg px-4 py-3 ${
+                      message.role === 'user' 
+                        ? 'bg-gray-200 text-gray-900' 
+                        : 'bg-gray-100 text-gray-900'
+                    }`}>
+                      <div className="text-sm leading-relaxed">
+                        {message.role === 'assistant' ? renderMessageContent(message.content) : (
+                          <span className="whitespace-pre-wrap">{message.content}</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                
+                {/* Thinking Animation */}
+                {isThinking && (
+                  <div className="flex justify-start">
+                    <div className="max-w-[85%] rounded-lg px-4 py-3 bg-gray-100 text-gray-900">
+                      <div className="flex items-center space-x-2">
+                        <div className="flex space-x-1">
+                          <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
+                          <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
+                          <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
+                        </div>
+                        <span className="text-sm text-gray-500">Thinking...</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Chat Input - Absolutely positioned for smooth transition */}
+          <div className={`absolute left-0 right-0 transition-all duration-700 ease-in-out transform ${
+            hasStartedChat 
+              ? 'bottom-0 translate-y-0 bg-white' 
+              : isTransitioning 
+                ? 'bottom-0 translate-y-0 bg-white' 
+                : 'top-1/2 -translate-y-1/2'
+          }`}>
+            <div className="p-4">
+              <div className="max-w-3xl mx-auto">
+                <div className="relative border-2 border-gray-100 rounded-2xl bg-white shadow-sm flex flex-col justify-between gap-2 p-[1px] transition-all duration-300 ease-in-out transform hover:shadow-md">
                 {/* Text Input Area */}
                 <div className="relative px-5 pb-3 pt-2">
                   <Textarea
@@ -2227,33 +2477,17 @@ const Dashboard: React.FC = () => {
                     rows={1}
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSendMessage();
+                      }
+                    }}
                   />
-                  {/* <Textarea
-                    placeholder="Understand, research and write about anything"
-                    className="min-h-[60px] w-full resize-none border-0 bg-transparent px-2 py-2 text-base placeholder:text-gray-500 focus:outline-none focus:ring-0 focus:ring-offset-0"
-                    rows={2}
-                  /> */}
-                  {/* <div className="absolute bottom-5 right-5">
-                    <Button className="bg-black text-white hover:bg-gray-800 text-sm px-4 py-2 !rounded-lg">
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-                        />
-                      </svg>
-                    </Button>
-                  </div> */}
                 </div>
 
                 {/* Action Buttons Inside Input */}
-                <div className="flex items-center justify-start space-x-3 px-5 pb-5 pb-4">
+                <div className="flex items-center justify-start space-x-3 px-5 pb-4">
                   {/* Model Selection Dropdown */}
                   <div className="relative">
                     <Button
@@ -2312,6 +2546,7 @@ const Dashboard: React.FC = () => {
                       </div>
                     )}
                   </div>
+                  
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button className="select-none relative justify-center whitespace-nowrap ring-offset-background focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 box-border data-[highlighted]:bg-popover-hover data-[highlighted]:text-accent-foreground data-[state=highlighted]:bg-popover-hover group-data-[highlighted]:bg-popover-hover group-data-[highlighted]:text-accent-foreground group-focus:bg-popover-hover group-focus:text-accent-foreground h-11 rounded-4 data-[state=open]:bg-control-primary focus-visible:outline-none group inline-flex items-center gap-2 px-5 py-2 rounded-4 text-sm font-medium transition-all duration-200 cursor-pointer bg-secondary hover:bg-secondary-hover text-text-primary focus-visible:ring-0 focus-visible:ring-offset-0 w-fit min-w-0 max-w-full">
@@ -2399,25 +2634,8 @@ const Dashboard: React.FC = () => {
                     </DropdownMenuContent>
                   </DropdownMenu>
 
-                  {/* <Button className="select-none relative justify-center whitespace-nowrap ring-offset-background focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 box-border data-[highlighted]:bg-popover-hover data-[highlighted]:text-accent-foreground data-[state=highlighted]:bg-popover-hover group-data-[highlighted]:bg-popover-hover group-data-[highlighted]:text-accent-foreground group-focus:bg-popover-hover group-focus:text-accent-foreground h-11 rounded-4 data-[state=open]:bg-control-primary focus-visible:outline-none group inline-flex items-center gap-2 px-5 py-2 rounded-4 text-sm font-medium transition-all duration-200 cursor-pointer bg-secondary hover:bg-secondary-hover text-text-primary focus-visible:ring-0 focus-visible:ring-offset-0 w-fit min-w-0 max-w-full">
-                    <svg
-                      width={12}
-                      height={12}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 4v16m8-8H4"
-                      />
-                    </svg>
-                  </Button> */}
-
                   <div
-                    className="flex flex-row gap-2 flex-shrink-0 "
+                    className="flex flex-row gap-2 flex-shrink-0"
                     style={{
                       marginLeft: "auto",
                     }}
@@ -2451,26 +2669,19 @@ const Dashboard: React.FC = () => {
                       </span>
                     </button>
                     <button
-                      onClick={() => {
-                        if (!inputValue.trim() || isSending) return;
-                        setIsSending(true);
-                        setTimeout(() => {
-                          setIsSending(false);
-                          setInputValue("");
-                        }, 2000);
-                      }}
+                      onClick={handleSendMessage}
                       disabled={!inputValue.trim() || isSending}
                       className={`flex justify-center items-center rounded-full p-3 transition-all duration-200 ease-in-out 
-      ${isSending
+                        ${isSending
                           ? 'bg-blue-600 text-white cursor-wait'
                           : inputValue.trim()
-                            ? 'bg-blue-600 text-white cursor-pointer'
+                            ? 'bg-blue-600 text-white cursor-pointer hover:bg-blue-700'
                             : 'bg-secondary text-text-secondary cursor-not-allowed'
                         }`}
                     >
                       {isSending ? (
-                        <svg width="24" height="24" viewBox="0 0 24 24" className="h-7 w-7 ">
-                          <rect x="5" y="5" width="15" height="15" fill="white" />
+                        <svg width="24" height="24" viewBox="0 0 24 24" className="h-7 w-7">
+                          <rect x="5" y="5" width="15" height="15" fill="currentColor" />
                         </svg>
                       ) : (
                         <svg
@@ -2491,14 +2702,15 @@ const Dashboard: React.FC = () => {
                         </svg>
                       )}
                     </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-    </div>
+      </div>
+      </div>
     </ProtectedRoute>
   );
 };

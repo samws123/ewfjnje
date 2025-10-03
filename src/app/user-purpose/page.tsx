@@ -11,6 +11,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 interface School {
   id: string;
+  name: string;
   lms: string;
   base_url: string;
 }
@@ -190,14 +191,14 @@ export default function UserPurpose() {
       });
 
       if (response.ok) {
-        toast.success('School selection saved!');
+     
         await checkSubscriptionAndRedirect();
       } else {
         const data = await response.json();
         toast.error(data.error || 'Failed to save school selection');
       }
     } catch (error) {
-      toast.error('An error occurred. Please try again.');
+      
     } finally {
       setLoading(false);
     }

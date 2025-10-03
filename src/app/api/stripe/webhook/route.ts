@@ -212,8 +212,8 @@ async function updateSubscriptionForUser(userId: string, subscription: Stripe.Su
       [
         subscription.id,
         subscription.status,
-        new Date(subscription.current_period_start * 1000).toISOString(),
-        new Date(subscription.current_period_end * 1000).toISOString(),
+        new Date((subscription as any).current_period_start * 1000).toISOString(),
+        new Date((subscription as any).current_period_end * 1000).toISOString(),
         planType,
         userId
       ]
@@ -308,8 +308,8 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
        WHERE stripe_subscription_id = $5`,
       [
         subscription.status,
-        new Date(subscription.current_period_start * 1000).toISOString(),
-        new Date(subscription.current_period_end * 1000).toISOString(),
+        new Date((subscription as any).current_period_start * 1000).toISOString(),
+        new Date((subscription as any).current_period_end * 1000).toISOString(),
         planType,
         subscription.id
       ]
@@ -350,7 +350,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
 }
 
 async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
-  const subscriptionId = invoice.subscription;
+  const subscriptionId = (invoice as any).subscription;
   if (!subscriptionId) return;
 
   console.log(`Payment succeeded for subscription ${subscriptionId}`);
@@ -375,7 +375,7 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
 }
 
 async function handlePaymentFailed(invoice: Stripe.Invoice) {
-  const subscriptionId = invoice.subscription;
+  const subscriptionId = (invoice as any).subscription;
   if (!subscriptionId) return;
 
   console.log(`Payment failed for subscription ${subscriptionId}`);
