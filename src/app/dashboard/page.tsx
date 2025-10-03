@@ -495,14 +495,14 @@ const Dashboard: React.FC = () => {
            try {
              res = await new Promise((resolve, reject) => {
                const t = setTimeout(() => reject(new Error('timeout')), 8000);
-               window.chrome!.runtime!.sendMessage( CONFIG.EXTENSION_ID, { type: 'SYNC_CANVAS', userToken: userToken, apiEndpoint: 'https://ewfjnje.vercel.app/api', baseUrl: baseUrl }, (r) => {
+               window.chrome!.runtime!.sendMessage( CONFIG.EXTENSION_ID, { type: 'SYNC_CANVAS', userToken: userToken, apiEndpoint: 'https://www.dunorth.io/api', baseUrl: baseUrl }, (r) => {
                  clearTimeout(t);
                  if (window.chrome!.runtime!.lastError) return reject(window.chrome!.runtime!.lastError);
                  resolve(r);
                });
              });
            } catch {
-             res = await bridgeCall('SYNC_CANVAS', { userToken: userToken, apiEndpoint: 'https://ewfjnje.vercel.app/api', baseUrl: baseUrl });
+             res = await bridgeCall('SYNC_CANVAS', { userToken: userToken, apiEndpoint: 'https://www.dunorth.io/api', baseUrl: baseUrl });
            }
       console.log(res)
       if (res?.ok) {

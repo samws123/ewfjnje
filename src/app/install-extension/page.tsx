@@ -24,7 +24,7 @@ function InstallExtension() {
   const { user } = useAuth();
 
   const EXTENSION_ID = 'elipinieeokobcniibdafjkbifbfencb';
-  const CHROME_STORE_URL = 'https://chromewebstore.google.com/detail/studyhackz/lhfclolcgndpomhfdijbocgcbjhfjkah';
+  const CHROME_STORE_URL = 'https://chromewebstore.google.com/detail/dunorth/gjchdhoaldcgmpclllljlpiefjolmdal';
 
 
 
