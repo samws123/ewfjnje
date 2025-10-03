@@ -3,9 +3,9 @@ import { getConversationWithMessages, updateConversation, deleteConversation } f
 import { resolveUserId } from '../../utils/user-management';
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 /**

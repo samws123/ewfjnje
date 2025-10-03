@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '../[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 import { getUserByEmail } from '@/lib/database';
 import jwt from 'jsonwebtoken';
 

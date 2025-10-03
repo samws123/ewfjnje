@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserProfile, getUserByEmail } from '@/lib/database';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 import jwt from 'jsonwebtoken';
 
 export async function GET(request: NextRequest) {
