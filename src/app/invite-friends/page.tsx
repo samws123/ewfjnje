@@ -211,7 +211,7 @@ function InviteFriends() {
             </button>
           </div>
 
-          {/* Invite and Subscribe Button */}
+          {/* Invite and Start Trial Button */}
           <Button
             variant="primary"
             size="lg"
@@ -219,7 +219,7 @@ function InviteFriends() {
             onClick={handleInviteAndSubscribe}
             disabled={loading }
           >
-            {loading ? 'Processing...' : user?.subscription_status === 'active' ? 'Send Invites & Continue' : 'Invite and Subscribe'}
+            {loading ? 'Processing...' : user?.subscription_status === 'active' ? 'Send Invites & Continue' : 'Invite and Start Trial'}
           </Button>
 
           {/* Copy Invite Link Button */}
