@@ -3,7 +3,7 @@
  * Handles user identification and Canvas session management
  */
 
-import { pool } from '@/lib/database';
+import { query } from '@/lib/database';
 
 interface CanvasSession {
   base_url: string;
@@ -33,10 +33,10 @@ export async function resolveUserId(raw: string): Promise<string> {
   const email = `${String(raw).replace(/[^a-zA-Z0-9._-]/g,'_')}@local.test`;
   
   // Do not overwrite an existing name; only insert if missing
-  const existing = await pool.query(`SELECT id FROM users WHERE email = $1`, [email]);
+  const existing = await query(`SELECT id FROM users WHERE email = $1`, [email]);
   if (existing.rows[0]?.id) return existing.rows[0].id;
   
-  const inserted = await pool.query(
+  const inserted = await query(
     `INSERT INTO users(email, name) VALUES($1,$2) RETURNING id`,
     [email, 'Chat User']
   );
@@ -48,7 +48,7 @@ export async function resolveUserId(raw: string): Promise<string> {
  * Get the latest Canvas session for a user
  */
 export async function getLatestCanvasSession(userId: string): Promise<CanvasSession | null> {
-  const { rows } = await pool.query(
+  const { rows } = await query(
     `SELECT base_url, session_cookie
      FROM user_canvas_sessions
      WHERE user_id = $1

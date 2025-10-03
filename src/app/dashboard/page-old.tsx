@@ -28,6 +28,7 @@ import { useRouter } from "next/navigation";
 import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { useAuth } from "@/lib/auth-context";
+import { ConversationList } from "@/components/chat/ConversationList";
 import { useChatHistory } from "@/hooks/useChatHistory";
 
 
@@ -61,13 +62,10 @@ const Dashboard: React.FC = () => {
   const [checkingSubscription, setCheckingSubscription] = useState(true);
   
   // Chat history integration
-  const userId = user?.id || user?.email || 'anonymous';
-  console.log('Dashboard user ID:', userId, 'User object:', user);
-  const chatHistory = useChatHistory(userId);
+  const chatHistory = useChatHistory(user?.id || 'anonymous');
   const [isThinking, setIsThinking] = useState(false);
   const [hasStartedChat, setHasStartedChat] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [isChatAccordionOpen, setIsChatAccordionOpen] = useState(true);
 
   //Check subscription status on component mount
   useEffect(() => {
@@ -75,21 +73,6 @@ const Dashboard: React.FC = () => {
       checkSubscriptionStatus();
     }
   }, [user]);
-
-  // Update hasStartedChat based on messages or current conversation
-  useEffect(() => {
-    setHasStartedChat(chatHistory.messages.length > 0 || chatHistory.currentConversationId !== null);
-  }, [chatHistory.messages.length, chatHistory.currentConversationId]);
-
-  // Auto-scroll to bottom when new messages arrive
-  useEffect(() => {
-    if (chatHistory.messages.length > 0) {
-      const chatContainer = document.querySelector('.chat-messages-container');
-      if (chatContainer) {
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-      }
-    }
-  }, [chatHistory.messages.length]);
 
   const checkSubscriptionStatus = async () => {
     setCheckingSubscription(true);
@@ -198,7 +181,7 @@ const Dashboard: React.FC = () => {
     // }
   };
 
-  // Chat functionality with history integration
+  // Chat functionality with history
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isSending) return;
     
@@ -218,8 +201,8 @@ const Dashboard: React.FC = () => {
         // Complete transition
         setTimeout(() => setIsTransitioning(false), 200);
         
+        // Send message using chat history hook
         try {
-          // Send message using chat history hook
           await chatHistory.sendMessage(messageContent);
         } catch (error) {
           console.error('Error sending message:', error);
@@ -234,8 +217,8 @@ const Dashboard: React.FC = () => {
       setIsSending(true);
       setIsThinking(true);
       
+      // Send message using chat history hook
       try {
-        // Send message using chat history hook
         await chatHistory.sendMessage(messageContent);
       } catch (error) {
         console.error('Error sending message:', error);
@@ -577,65 +560,20 @@ const Dashboard: React.FC = () => {
   return (
     <ProtectedRoute requireAuth={true} redirectTo="/signup">
       <div className="h-screen bg-white flex font-inter antialiased overflow-hidden">
-        {/* Sidebar */}
+        {/* Sidebar with Conversation History */}
         {sidebarVisible && (
-        <div className="w-64 bg-gray-50 border-r border-gray-200 pt-4 flex flex-col h-full">
-          <div className="bg-background-primary overflow-hidden group/sidebar h-full min-h-0  flex flex-col w-full z-50">
-            <div className="flex items-center mb-5 px-4">
-              <DropdownMenu>
-                <DropdownMenuTrigger
-                  asChild
-                  className="inline-flex items-center select-none relative justify-center whitespace-nowrap ring-offset-background transition-colors focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border text-text-primary hover:bg-control-primary data-[highlighted]:bg-popover-hover data-[highlighted]:text-accent-foreground data-[state=highlighted]:bg-popover-hover group-data-[highlighted]:bg-popover-hover group-data-[highlighted]:text-accent-foreground group-focus:bg-popover-hover group-focus:text-accent-foreground px-4 py-2 rounded-5 data-[state=open]:bg-control-primary focus-visible:outline-none focus-visible:ring-0 text-sm w-fit font-semibold gap-1 h-11"
-                >
-                  <button
-                    className="inline-flex items-center select-none relative justify-center whitespace-nowrap ring-offset-background transition-colors focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border text-text-primary hover:bg-control-primary data-[highlighted]:bg-popover-hover data-[highlighted]:text-accent-foreground data-[state=highlighted]:bg-popover-hover group-data-[highlighted]:bg-popover-hover group-data-[highlighted]:text-accent-foreground group-focus:bg-popover-hover group-focus:text-accent-foreground px-4 py-2 rounded-5 data-[state=open]:bg-control-primary focus-visible:outline-none focus-visible:ring-0 text-sm w-fit font-semibold gap-1 h-11"
-                    type="button"
-                  >
-                    <span className="truncate">
-                      <span className="truncate">{user?.name || user?.email}</span>
-                    </span>
-                    <span className="ml-auto">
-                      <span className="shrink-0">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="14"
-                          height="14"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="lucide lucide-chevron-down"
-                          aria-hidden="true"
-                        >
-                          <path d="m6 9 6 6 6-6"></path>
-                        </svg>
-                      </span>
-                    </span>
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="ml-4 z-50 overflow-hidden rounded-6 border border-border-primary bg-popover text-text-primary shadow-feint data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 min-w-[200px] p-2">
-                  <div className="text-sm font-semibold flex flex-col py-2 px-4">
-                    <div>
-                      <div className="flex flex-row w-full gap-4 items-center">
-                        <p className="text-sm font-semibold text-text-primary">
-                          {user?.name || user?.email?.split('@')[0]}
-                        </p>
-                        <div className="text-xs font-semibold text-blue bg-blue/10 py-1 px-2 rounded-2">
-                          Free
-                        </div>
-                      </div>
-                      <p className="text-sm font-medium text-text-secondary">
-                        {user?.email}
-                      </p>
-                    </div>
-                  </div>
-                  <div
-                    role="separator"
-                    aria-orientation="horizontal"
-                    className="-mx-2 my-2 h-px bg-border"
-                  ></div>
+        <div className="w-64 bg-gray-50 border-r border-gray-200 flex flex-col h-full">
+          <ConversationList
+            selectedConversationId={chatHistory.currentConversationId || undefined}
+            onConversationSelect={chatHistory.selectConversation}
+            onNewConversation={chatHistory.createNewConversation}
+            className="h-full"
+          />
+        </div>
+        )}
+
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col relative">
                   <div
                     role="menuitem"
                     className="focus:outline-none group"
@@ -1645,12 +1583,11 @@ const Dashboard: React.FC = () => {
               <div className="flex flex-col group/chats gap-1">
                 <div
                   aria-busy="false"
-                  className="inline-flex items-center select-none relative whitespace-nowrap ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border hover:bg-control-primary focus:bg-popover-hover focus:text-accent-foreground data-[highlighted]:bg-popover-hover data-[highlighted]:text-accent-foreground overflow-hidden w-full justify-start px-4 py-2 rounded-5 rounded-4 gap-3 duration-0 group/chat-header h-9.5 text-text-secondary font-semibold text-[13px] cursor-pointer"
+                  className="inline-flex items-center select-none relative whitespace-nowrap ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border hover:bg-control-primary focus:bg-popover-hover focus:text-accent-foreground data-[highlighted]:bg-popover-hover data-[highlighted]:text-accent-foreground overflow-hidden w-full justify-start px-4 py-2 rounded-5 rounded-4 gap-3 duration-0 group/chat-header h-9.5 text-text-secondary font-semibold text-[13px]"
                   tabIndex={0}
                   role="button"
-                  aria-expanded={isChatAccordionOpen}
+                  aria-expanded="true"
                   aria-controls="chats-content"
-                  onClick={() => setIsChatAccordionOpen(!isChatAccordionOpen)}
                 >
                   <span className="shrink-0">
                     <svg
@@ -1663,9 +1600,7 @@ const Dashboard: React.FC = () => {
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      className={`lucide lucide-chevron-right text-text-secondary flex-shrink-0 transition-transform duration-200 ease-out ${
-                        isChatAccordionOpen ? 'rotate-90' : 'rotate-0'
-                      }`}
+                      className="lucide lucide-chevron-right text-text-secondary flex-shrink-0 transition-transform duration-200 ease-out rotate-90"
                       aria-hidden="true"
                     >
                       <path d="m9 18 6-6-6-6"></path>
@@ -1680,10 +1615,6 @@ const Dashboard: React.FC = () => {
                         aria-label="Create a new chat"
                         data-state="closed"
                         type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          chatHistory.createNewConversation();
-                        }}
                       >
                         <span className="truncate">
                           <svg
@@ -1709,65 +1640,15 @@ const Dashboard: React.FC = () => {
                 </div>
                 <div
                   id="chats-content"
-                  className={`overflow-hidden transition-all duration-200 ease-out ${
-                    isChatAccordionOpen ? 'opacity-100' : 'opacity-0 h-0'
-                  }`}
-                  style={{ 
-                    height: isChatAccordionOpen ? "auto" : "0px", 
-                    opacity: isChatAccordionOpen ? 1 : 0 
-                  }}
+                  className="overflow-hidden"
+                  style={{ height: "auto", opacity: 1 }}
                 >
                   <div className="space-y-1 select-none" style={{ opacity: 1 }}>
-                    {chatHistory.loading ? (
-                      <div style={{ opacity: 1, transform: "none" }}>
-                        <p className="text-text-secondary py-3 pl-4 text-sm">
-                          Loading conversations...
-                        </p>
-                      </div>
-                    ) : chatHistory.conversations.length === 0 ? (
-                      <div style={{ opacity: 1, transform: "none" }}>
-                        <p className="text-text-secondary py-3 pl-4 text-sm">
-                          No chats available
-                        </p>
-                      </div>
-                    ) : (
-                      chatHistory.conversations.map((conversation) => (
-                        <div
-                          key={conversation.id}
-                          style={{ opacity: 1, transform: "none" }}
-                          className={`group cursor-pointer rounded-lg mx-2 px-3 py-2 text-sm transition-colors ${
-                            chatHistory.currentConversationId === conversation.id
-                              ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                              : 'hover:bg-gray-100 text-gray-700'
-                          }`}
-                          onClick={() => chatHistory.selectConversation(conversation.id)}
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1 min-w-0">
-                              <div className="truncate font-medium">
-                                {conversation.title}
-                              </div>
-                            </div>
-                            <div className="opacity-0 group-hover:opacity-100 transition-opacity ml-2">
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  if (confirm('Delete this conversation?')) {
-                                    chatHistory.deleteConversation(conversation.id);
-                                  }
-                                }}
-                                className="p-1 hover:bg-red-100 rounded text-red-500"
-                                title="Delete conversation"
-                              >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      ))
-                    )}
+                    <div style={{ opacity: 1, transform: "none" }}>
+                      <p className="text-text-secondary py-3 pl-4 text-sm">
+                        No chats available
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -2460,12 +2341,12 @@ const Dashboard: React.FC = () => {
           </div>
 
           {/* Chat Messages Area */}
-          <div className={`chat-messages-container flex-1 overflow-y-auto transition-all duration-700 ease-in-out ${
+          <div className={`flex-1 overflow-y-auto transition-all duration-700 ease-in-out ${
             hasStartedChat ? 'opacity-100' : 'opacity-0 pointer-events-none'
           } ${hasStartedChat ? 'pb-32' : ''}`}>
             <div className="px-4 py-6">
               <div className="max-w-3xl mx-auto space-y-6">
-                {chatHistory.messages.map((message) => (
+                {messages.map((message) => (
                   <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                     <div className={`max-w-[85%] rounded-lg px-4 py-3 ${
                       message.role === 'user' 
