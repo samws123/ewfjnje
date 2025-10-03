@@ -11,6 +11,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 interface School {
   id: string;
+  name: string;
   lms: string;
   base_url: string;
 }
