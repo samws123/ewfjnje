@@ -153,8 +153,6 @@ export const Footer: React.FC = () => {
                   <li>
                     <span
                       data-href="https://discord.gg/7c9ucr3DZJ"
-                      target="_blank"
-                      rel="noopener noreferrer"
                       className="text-text-secondary text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-5"
                     >
                       Join Discord
@@ -186,8 +184,6 @@ export const Footer: React.FC = () => {
                   <li>
                     <span
                       data-href="https://www.ycombinator.com/companies/anara/jobs/"
-                      target="_blank"
-                      rel="noopener noreferrer"
                       className="text-text-secondary text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-5"
                     >
                       Careers
@@ -212,8 +208,6 @@ export const Footer: React.FC = () => {
                   <li>
                     <span
                       data-href="https://drive.google.com/drive/folders/1czxkRszv11zHu-gAEj53Dfgj-CYHq44G"
-                      target="_blank"
-                      rel="noopener noreferrer"
                       className="text-text-secondary text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-5"
                     >
                       Press kit
@@ -222,8 +216,6 @@ export const Footer: React.FC = () => {
                   <li>
                     <span
                       data-href="https://partners.dub.co/anara"
-                      target="_blank"
-                      rel="noopener noreferrer"
                       className="text-text-secondary text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-5"
                     >
                       Affiliates
@@ -247,8 +239,6 @@ export const Footer: React.FC = () => {
                   <li>
                     <span
                       data-href="https://chromewebstore.google.com/detail/unriddle-ai-generated-sum/iinmigjlcpeckfihbbfajpkiilfmakff"
-                      target="_blank"
-                      rel="noopener noreferrer"
                       className="text-text-secondary text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-5"
                     >
                       Chrome extension
@@ -257,8 +247,6 @@ export const Footer: React.FC = () => {
                   <li>
                     <span
                       data-href="https://lector-weld.vercel.app/"
-                      target="_blank"
-                      rel="noopener noreferrer"
                       className="text-text-secondary text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-5"
                     >
                       PDF viewer
@@ -274,8 +262,6 @@ export const Footer: React.FC = () => {
                   <li>
                     <span
                       data-href="https://anara.com/docs/legal/terms"
-                      target="_blank"
-                      rel="noopener noreferrer"
                       className="text-text-secondary text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-5"
                     >
                       Terms
@@ -284,8 +270,6 @@ export const Footer: React.FC = () => {
                   <li>
                     <span
                       data-href="https://anara.com/dpa"
-                      target="_blank"
-                      rel="noopener noreferrer"
                       className="text-text-secondary text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-5"
                     >
                       DPA
@@ -294,8 +278,6 @@ export const Footer: React.FC = () => {
                   <li>
                     <span
                       data-href="https://anara.com/docs/legal/privacy"
-                      target="_blank"
-                      rel="noopener noreferrer"
                       className="text-text-secondary text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-5"
                     >
                       Privacy
@@ -312,8 +294,6 @@ export const Footer: React.FC = () => {
                   <li>
                     <span
                       data-href="https://trust.delve.co/anara"
-                      target="_blank"
-                      rel="noopener noreferrer"
                       className="text-text-secondary text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-5"
                     >
                       Trust center
@@ -334,8 +314,6 @@ export const Footer: React.FC = () => {
                   <li>
                     <span
                       data-href="https://x.com/anara"
-                      target="_blank"
-                      rel="noopener noreferrer"
                       className="text-text-secondary text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-5"
                     >
                       X (Twitter)
@@ -344,8 +322,6 @@ export const Footer: React.FC = () => {
                   <li>
                     <span
                       data-href="https://www.instagram.com/anaralabs/"
-                      target="_blank"
-                      rel="noopener noreferrer"
                       className="text-text-secondary text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-5"
                     >
                       Instagram
@@ -354,8 +330,6 @@ export const Footer: React.FC = () => {
                   <li>
                     <span
                       data-href="https://www.tiktok.com/@anaralabs"
-                      target="_blank"
-                      rel="noopener noreferrer"
                       className="text-text-secondary text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-5"
                     >
                       TikTok
@@ -364,8 +338,6 @@ export const Footer: React.FC = () => {
                   <li>
                     <span
                       data-href="https://www.linkedin.com/company/anaralabs/"
-                      target="_blank"
-                      rel="noopener noreferrer"
                       className="text-text-secondary text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-5"
                     >
                       LinkedIn
@@ -381,24 +353,18 @@ export const Footer: React.FC = () => {
               <div className="flex flex-wrap gap-4">
                 <a
                   href="https://trust.delve.co/anara"
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="text-text-secondary font-medium text-sm leading-[16px] bg-secondary w-fit p-2 rounded-4 cursor-pointer"
                 >
                   GDPR
                 </a>
                 <a
                   href="https://trust.delve.co/anara"
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="text-text-secondary font-medium text-sm leading-[16px] bg-secondary w-fit p-2 rounded-4 cursor-pointer"
                 >
                   SOC 2
                 </a>
                 <a
                   href="https://trust.delve.co/anara"
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="text-text-secondary font-medium text-sm leading-[16px] bg-secondary w-fit p-2 rounded-4 cursor-pointer"
                 >
                   ISO27001
