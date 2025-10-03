@@ -138,48 +138,43 @@ export const Footer: React.FC = () => {
                 </h3>
                 <ul>
                   <li>
-                    <a
-                      href="https://docs.anara.com"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-text-secondary text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-5"
-                    >
+                    <span className="text-text-secondary text-base leading-[18px] block mb-5">
                       User guide
-                    </a>
+                    </span>
                   </li>
                   <li>
-                    <a
-                      href="/changelog"
+                    <span
+                      data-href="/changelog"
                       className="text-text-secondary text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-5"
                     >
                       Changelog
-                    </a>
+                    </span>
                   </li>
                   <li>
-                    <a
-                      href="https://discord.gg/7c9ucr3DZJ"
+                    <span
+                      data-href="https://discord.gg/7c9ucr3DZJ"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-text-secondary text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-5"
                     >
                       Join Discord
-                    </a>
+                    </span>
                   </li>
                   <li>
-                    <a
-                      href="/blog"
+                    <span
+                      data-href="/blog"
                       className="text-text-secondary text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-5"
                     >
                       Blog
-                    </a>
+                    </span>
                   </li>
                   <li>
-                    <a
-                      href="/faqs"
+                    <span
+                      data-href="/faqs"
                       className="text-text-secondary text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-5"
                     >
                       FAQs
-                    </a>
+                    </span>
                   </li>
                 </ul>
               </div>
@@ -189,14 +184,14 @@ export const Footer: React.FC = () => {
                 </h3>
                 <ul>
                   <li>
-                    <a
-                      href="https://www.ycombinator.com/companies/anara/jobs/"
+                    <span
+                      data-href="https://www.ycombinator.com/companies/anara/jobs/"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-text-secondary text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-5"
                     >
                       Careers
-                    </a>
+                    </span>
                   </li>
                   <li>
                     <a
@@ -204,35 +199,35 @@ export const Footer: React.FC = () => {
                       className="text-text-secondary text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-5"
                     >
                       Support
-                    </a>
+                    </span>
                   </li>
                   <li>
-                    <a
-                      href="mailto:support@anara.com"
+                    <span
+                      data-href="mailto:support@anara.com"
                       className="text-text-secondary text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-5"
                     >
                       Contact
-                    </a>
+                    </span>
                   </li>
                   <li>
-                    <a
-                      href="https://drive.google.com/drive/folders/1czxkRszv11zHu-gAEj53Dfgj-CYHq44G"
+                    <span
+                      data-href="https://drive.google.com/drive/folders/1czxkRszv11zHu-gAEj53Dfgj-CYHq44G"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-text-secondary text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-5"
                     >
                       Press kit
-                    </a>
+                    </span>
                   </li>
                   <li>
-                    <a
-                      href="https://partners.dub.co/anara"
+                    <span
+                      data-href="https://partners.dub.co/anara"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-text-secondary text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-5"
                     >
                       Affiliates
-                    </a>
+                    </span>
                   </li>
                 </ul>
               </div>
@@ -242,32 +237,32 @@ export const Footer: React.FC = () => {
                 </h3>
                 <ul>
                   <li>
-                    <a
-                      href="/new"
+                    <span
+                      data-href="/new"
                       className="text-text-secondary text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-5"
                     >
                       Web application
-                    </a>
+                    </span>
                   </li>
                   <li>
-                    <a
-                      href="https://chromewebstore.google.com/detail/unriddle-ai-generated-sum/iinmigjlcpeckfihbbfajpkiilfmakff"
+                    <span
+                      data-href="https://chromewebstore.google.com/detail/unriddle-ai-generated-sum/iinmigjlcpeckfihbbfajpkiilfmakff"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-text-secondary text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-5"
                     >
                       Chrome extension
-                    </a>
+                    </span>
                   </li>
                   <li>
-                    <a
-                      href="https://lector-weld.vercel.app/"
+                    <span
+                      data-href="https://lector-weld.vercel.app/"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-text-secondary text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-5"
                     >
                       PDF viewer
-                    </a>
+                    </span>
                   </li>
                 </ul>
               </div>
@@ -277,52 +272,52 @@ export const Footer: React.FC = () => {
                 </h3>
                 <ul>
                   <li>
-                    <a
-                      href="https://anara.com/docs/legal/terms"
+                    <span
+                      data-href="https://anara.com/docs/legal/terms"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-text-secondary text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-5"
                     >
                       Terms
-                    </a>
+                    </span>
                   </li>
                   <li>
-                    <a
-                      href="https://anara.com/dpa"
+                    <span
+                      data-href="https://anara.com/dpa"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-text-secondary text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-5"
                     >
                       DPA
-                    </a>
+                    </span>
                   </li>
                   <li>
-                    <a
-                      href="https://anara.com/docs/legal/privacy"
+                    <span
+                      data-href="https://anara.com/docs/legal/privacy"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-text-secondary text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-5"
                     >
                       Privacy
-                    </a>
+                    </span>
                   </li>
                   <li>
-                    <a
-                      href="/subprocessors"
+                    <span
+                      data-href="/subprocessors"
                       className="text-text-secondary text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-5"
                     >
                       Subprocessors
-                    </a>
+                    </span>
                   </li>
                   <li>
-                    <a
-                      href="https://trust.delve.co/anara"
+                    <span
+                      data-href="https://trust.delve.co/anara"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-text-secondary text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-5"
                     >
                       Trust center
-                    </a>
+                    </span>
                   </li>
                   <li>
                     <button className="text-muted-foreground text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-2.5 text-left">
@@ -337,44 +332,44 @@ export const Footer: React.FC = () => {
                 </h3>
                 <ul>
                   <li>
-                    <a
-                      href="https://x.com/anara"
+                    <span
+                      data-href="https://x.com/anara"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-text-secondary text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-5"
                     >
                       X (Twitter)
-                    </a>
+                    </span>
                   </li>
                   <li>
-                    <a
-                      href="https://www.instagram.com/anaralabs/"
+                    <span
+                      data-href="https://www.instagram.com/anaralabs/"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-text-secondary text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-5"
                     >
                       Instagram
-                    </a>
+                    </span>
                   </li>
                   <li>
-                    <a
-                      href="https://www.tiktok.com/@anaralabs"
+                    <span
+                      data-href="https://www.tiktok.com/@anaralabs"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-text-secondary text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-5"
                     >
                       TikTok
-                    </a>
+                    </span>
                   </li>
                   <li>
-                    <a
-                      href="https://www.linkedin.com/company/anaralabs/"
+                    <span
+                      data-href="https://www.linkedin.com/company/anaralabs/"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-text-secondary text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-5"
                     >
                       LinkedIn
-                    </a>
+                    </span>
                   </li>
                 </ul>
               </div>
@@ -451,11 +446,11 @@ export const Footer: React.FC = () => {
                   {section.links.map((link, linkIndex) => (
                     <li key={linkIndex}>
                       <a
-                        href="#"
+                        data-href="#"
                         className="text-gray-600 font-medium text-base leading-none hover:text-black transition-colors"
                       >
                         {link}
-                      </a>
+                      </span>
                     </li>
                   ))}
                 </ul>
