@@ -194,9 +194,9 @@ export const Footer: React.FC = () => {
                     </span>
                   </li>
                   <li>
-                    <a
+                    <span
                       id="intercom_support"
-                      className="text-text-secondary text-base leading-[18px] cursor-pointer transition-all ease duration-200 hover:text-black block mb-5"
+                      className="text-text-secondary text-base leading-[18px] block mb-5"
                     >
                       Support
                     </span>

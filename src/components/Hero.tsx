@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { AnimatedCompanies } from "./AnimatedCompanies";
 import { useEntranceAnimation } from "@/hooks/useEntranceAnimation";
@@ -8,6 +9,7 @@ import { motion, AnimationDefinition, Variants } from "framer-motion";
 
 export const Hero: React.FC = () => {
   const isVisible = useEntranceAnimation();
+  const router = useRouter();
 
   const images = [
     {
