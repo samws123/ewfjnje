@@ -58,7 +58,7 @@ export function generateVerificationCode(): string {
 
 export function getVerificationEmailTemplate(code: string, isSignup: boolean = true) {
   const action = isSignup ? 'sign up' : 'sign in';
-  const title = isSignup ? 'Welcome! Verify your email' : 'Verify your email to sign in';
+  const title = isSignup ? 'Welcome to DuNorth! Verify your email' : 'DuNorth - Verify your email to sign in';
   
   return {
     subject: title,
