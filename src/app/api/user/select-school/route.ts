@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { updateUserProfile, getSchoolByName, createSchool, getUserByEmail } from '@/lib/database';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 import jwt from 'jsonwebtoken';
 
 export async function POST(request: NextRequest) {
