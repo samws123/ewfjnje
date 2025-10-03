@@ -93,6 +93,7 @@ export async function POST(request: NextRequest) {
         referralCode: referralCode || '',
       },
       subscription_data: {
+        trial_period_days: 3,
         metadata: {
           userId: user.id,
           referralCode: referralCode || '',
