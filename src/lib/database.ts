@@ -12,9 +12,11 @@ export function getPool() {
   if (!pooll) {
     pooll = new Pool({ 
       connectionString: process.env.DATABASE_URL, 
-      max: 5, 
+   max:5,
       ssl: process.env.DATABASE_URL?.includes('supabase') ? { rejectUnauthorized: false } : false
     });
+    
+  
   }
   return pooll;
 }
@@ -27,9 +29,15 @@ export const pool = getPool();
 
 
 // Optimized query function - uses pool directly without creating clients
-export async function query(text: string, params?: any[], retries = 2): Promise<any> {
+export async function query(text: string, params?: any[]): Promise<any> {
   const p = getPool();
-  return p.query(text, params);
+  try {
+    const result = await p.query(text, params);
+    return result;
+  } catch (error: any) {
+    console.error('Database query error:', error);
+    throw error;
+  }
 }
 
 
@@ -41,11 +49,15 @@ function isConnectionError(error: any): boolean {
     'ECONNRESET',
     'ENOTFOUND',
     'ETIMEDOUT',
-    'connection closed'
+    'connection closed',
+    'db_termination',
+    'shutdown'
   ];
   
   return connectionErrors.some(errType => 
-    error.message?.toLowerCase().includes(errType.toLowerCase())
+    error.message?.toLowerCase().includes(errType.toLowerCase()) ||
+    error.code === 'XX000' ||
+    error.toString().includes('db_termination')
   );
 }
 
@@ -81,6 +93,25 @@ export interface UserProfile {
   lms?: string;
   base_url?: string;
   last_sync?: string;
+}
+
+export interface Conversation {
+  id: string;
+  user_id: string;
+  title: string;
+  created_at: string;
+  updated_at: string;
+  archived: boolean;
+  message_count: number;
+}
+
+export interface Message {
+  id: string;
+  conversation_id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  created_at: string;
+  metadata?: Record<string, any>;
 }
 
 // Initialize database tables
@@ -236,6 +267,37 @@ export async function initializeDatabase() {
         PRIMARY KEY (user_id, id)
       )
     `);
+
+    // Create conversations table for chat history
+    await query(`
+      CREATE TABLE IF NOT EXISTS conversations (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        title TEXT NOT NULL DEFAULT 'New Conversation',
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW(),
+        archived BOOLEAN DEFAULT FALSE,
+        message_count INTEGER DEFAULT 0
+      )
+    `);
+
+    // Create messages table for chat history
+    await query(`
+      CREATE TABLE IF NOT EXISTS messages (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        conversation_id UUID NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+        role VARCHAR(20) NOT NULL CHECK (role IN ('user', 'assistant')),
+        content TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW(),
+        metadata JSONB DEFAULT '{}'
+      )
+    `);
+
+    // Create indexes for better performance
+    await query(`CREATE INDEX IF NOT EXISTS idx_conversations_user_id ON conversations(user_id)`);
+    await query(`CREATE INDEX IF NOT EXISTS idx_conversations_updated_at ON conversations(updated_at DESC)`);
+    await query(`CREATE INDEX IF NOT EXISTS idx_messages_conversation_id ON messages(conversation_id)`);
+    await query(`CREATE INDEX IF NOT EXISTS idx_messages_created_at ON messages(created_at)`);
 
     console.log('Database tables initialized successfully');
   } catch (error) {
@@ -461,6 +523,201 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
     return result.rows.length > 0 ? result.rows[0] : null;
   } catch (error: any) {
     throw new Error(`Failed to get user profile: ${error.message}`);
+  }
+}
+
+// Chat history operations
+export async function createConversation(userId: string, title?: string): Promise<Conversation> {
+  try {
+    const result = await query(
+      `INSERT INTO conversations (user_id, title) 
+       VALUES ($1, $2) 
+       RETURNING *`,
+      [userId, title || 'New Conversation']
+    );
+    return result.rows[0];
+  } catch (error: any) {
+    throw new Error(`Failed to create conversation: ${error.message}`);
+  }
+}
+
+export async function getConversations(userId: string, limit = 50, offset = 0): Promise<Conversation[]> {
+  try {
+    const result = await query(
+      `SELECT * FROM conversations 
+       WHERE user_id = $1 AND archived = FALSE 
+       ORDER BY updated_at DESC 
+       LIMIT $2 OFFSET $3`,
+      [userId, limit, offset]
+    );
+    return result.rows;
+  } catch (error: any) {
+    throw new Error(`Failed to get conversations: ${error.message}`);
+  }
+}
+
+export async function getConversationById(conversationId: string, userId: string): Promise<Conversation | null> {
+  try {
+    const result = await query(
+      `SELECT * FROM conversations 
+       WHERE id = $1 AND user_id = $2`,
+      [conversationId, userId]
+    );
+    return result.rows.length > 0 ? result.rows[0] : null;
+  } catch (error: any) {
+    throw new Error(`Failed to get conversation: ${error.message}`);
+  }
+}
+
+export async function updateConversation(conversationId: string, userId: string, updates: Partial<Conversation>): Promise<Conversation | null> {
+  try {
+    const setClause = [];
+    const values = [];
+    let paramCount = 1;
+
+    if (updates.title !== undefined) {
+      setClause.push(`title = $${paramCount++}`);
+      values.push(updates.title);
+    }
+    if (updates.archived !== undefined) {
+      setClause.push(`archived = $${paramCount++}`);
+      values.push(updates.archived);
+    }
+
+    setClause.push(`updated_at = NOW()`);
+    values.push(conversationId, userId);
+
+    const result = await query(
+      `UPDATE conversations 
+       SET ${setClause.join(', ')} 
+       WHERE id = $${paramCount++} AND user_id = $${paramCount++} 
+       RETURNING *`,
+      values
+    );
+    return result.rows.length > 0 ? result.rows[0] : null;
+  } catch (error: any) {
+    throw new Error(`Failed to update conversation: ${error.message}`);
+  }
+}
+
+export async function deleteConversation(conversationId: string, userId: string): Promise<boolean> {
+  try {
+    console.log('Deleting conversation:', { conversationId, userId });
+    
+    // First check if the conversation exists and belongs to the user
+    const checkResult = await query(
+      `SELECT id FROM conversations WHERE id = $1 AND user_id = $2`,
+      [conversationId, userId]
+    );
+    
+    console.log('Conversation check result:', checkResult.rows);
+    
+    if (checkResult.rows.length === 0) {
+      console.log('Conversation not found or not owned by user');
+      return false;
+    }
+    
+    // Delete messages first (due to foreign key constraint)
+    await query(
+      `DELETE FROM messages WHERE conversation_id = $1`,
+      [conversationId]
+    );
+    
+    // Then delete the conversation
+    const result = await query(
+      `DELETE FROM conversations 
+       WHERE id = $1 AND user_id = $2`,
+      [conversationId, userId]
+    );
+    
+    console.log('Delete result rowCount:', result.rowCount);
+    return (result.rowCount || 0) > 0;
+  } catch (error: any) {
+    console.error('Error in deleteConversation:', error);
+    throw new Error(`Failed to delete conversation: ${error.message}`);
+  }
+}
+
+export async function addMessage(conversationId: string, role: 'user' | 'assistant', content: string, metadata?: Record<string, any>): Promise<Message> {
+  try {
+    // Start a transaction to ensure consistency
+    const client = await pool.connect();
+    
+    try {
+      await client.query('BEGIN');
+      
+      // Insert the message
+      const messageResult = await client.query(
+        `INSERT INTO messages (conversation_id, role, content, metadata) 
+         VALUES ($1, $2, $3, $4) 
+         RETURNING *`,
+        [conversationId, role, content, metadata || {}]
+      );
+      
+      // Update conversation's updated_at and message_count
+      await client.query(
+        `UPDATE conversations 
+         SET updated_at = NOW(), message_count = message_count + 1 
+         WHERE id = $1`,
+        [conversationId]
+      );
+      
+      await client.query('COMMIT');
+      return messageResult.rows[0];
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
+  } catch (error: any) {
+    throw new Error(`Failed to add message: ${error.message}`);
+  }
+}
+
+export async function getMessages(conversationId: string, limit = 100, offset = 0): Promise<Message[]> {
+  try {
+    const result = await query(
+      `SELECT * FROM messages 
+       WHERE conversation_id = $1 
+       ORDER BY created_at ASC 
+       LIMIT $2 OFFSET $3`,
+      [conversationId, limit, offset]
+    );
+    return result.rows;
+  } catch (error: any) {
+    throw new Error(`Failed to get messages: ${error.message}`);
+  }
+}
+
+export async function searchConversations(userId: string, searchQuery: string, limit = 20): Promise<Conversation[]> {
+  try {
+    const result = await query(
+      `SELECT DISTINCT c.* FROM conversations c
+       LEFT JOIN messages m ON c.id = m.conversation_id
+       WHERE c.user_id = $1 AND c.archived = FALSE
+       AND (c.title ILIKE $2 OR m.content ILIKE $2)
+       ORDER BY c.updated_at DESC
+       LIMIT $3`,
+      [userId, `%${searchQuery}%`, limit]
+    );
+    return result.rows;
+  } catch (error: any) {
+    throw new Error(`Failed to search conversations: ${error.message}`);
+  }
+}
+
+export async function getConversationWithMessages(conversationId: string, userId: string): Promise<{ conversation: Conversation; messages: Message[] } | null> {
+  try {
+    const conversation = await getConversationById(conversationId, userId);
+    if (!conversation) {
+      return null;
+    }
+    
+    const messages = await getMessages(conversationId);
+    return { conversation, messages };
+  } catch (error: any) {
+    throw new Error(`Failed to get conversation with messages: ${error.message}`);
   }
 }
 
