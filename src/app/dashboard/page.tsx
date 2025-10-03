@@ -1880,7 +1880,6 @@ const Dashboard: React.FC = () => {
                                 </span>
                                 <span className="truncate">
                                   <span className="text-ellipsis text-text-primary select-none whitespace-nowrap items-center overflow-hidden pr-2">
-                                    Age reversal research
                                   </span>
                                 </span>
                                 <span className="ml-auto">
