@@ -8,68 +8,21 @@ import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
-interface SubscriptionStatus {
-  status: string;
-  isActive: boolean;
-  plan?: string;
-}
 
 function InviteFriends() {
   const [emails, setEmails] = useState<string[]>(["", "", ""]);
   const [loading, setLoading] = useState(false);
-  const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus | null>(null);
-  const [loadingSubscription, setLoadingSubscription] = useState(true);
   const router = useRouter();
   const { user } = useAuth();
 
+  // Auto-redirect to dashboard if subscription is active
   useEffect(() => {
-    if (user && !subscriptionStatus) {
-      // Only fetch if we don't already have subscription status
-      fetchSubscriptionStatus();
+    if (user?.subscription_status === 'active') {
+      console.log('Subscription is active, redirecting to dashboard...');
+      router.push('/dashboard');
     }
-  }, [user, subscriptionStatus]);
+  }, [user, router]);
 
-  const fetchSubscriptionStatus = async () => {
-    // Prevent multiple simultaneous calls
-    if (loadingSubscription) {
-      console.log('Subscription status already loading, skipping...');
-      return;
-    }
-
-    // First check cached user data
-    if (user?.subscription_status) {
-      console.log('Using cached subscription status:', user.subscription_status);
-      const isActive = user.subscription_status === 'active';
-      
-      setSubscriptionStatus({
-        status: user.subscription_status,
-        isActive,
-        plan: user.subscription_plan || 'monthly'
-      });
-      setLoadingSubscription(false);
-      return;
-    }
-
-    // Fallback to API call if no cached subscription data
-    setLoadingSubscription(true);
-    try {
-      console.log('Fetching subscription status from API...');
-      const response = await fetch("/api/stripe/subscription-status", {
-        credentials: 'include' // Ensure cookies are sent
-      });
-      const data = await response.json();
-      if (data.success) {
-        setSubscriptionStatus(data.subscription);
-        console.log('Subscription status loaded:', data.subscription);
-      } else {
-        console.error('Failed to fetch subscription status:', data.error);
-      }
-    } catch (error) {
-      console.error('Error fetching subscription status:', error);
-    } finally {
-      setLoadingSubscription(false);
-    }
-  };
 
   const handleEmailChange = (index: number, value: string) => {
     const newEmails = [...emails];
@@ -156,7 +109,7 @@ function InviteFriends() {
     }
     
     // Then handle subscription
-    if (!subscriptionStatus?.isActive) {
+    if (user?.subscription_status !== 'active') {
       await handleSubscribe();
     } else {
       // If already subscribed, go to extension installation page
@@ -266,7 +219,7 @@ function InviteFriends() {
             onClick={handleInviteAndSubscribe}
             disabled={loading }
           >
-            {loading ? 'Processing...' : subscriptionStatus?.isActive ? 'Send Invites & Continue' : 'Invite and Subscribe'}
+            {loading ? 'Processing...' : user?.subscription_status === 'active' ? 'Send Invites & Continue' : 'Invite and Subscribe'}
           </Button>
 
           {/* Copy Invite Link Button */}
