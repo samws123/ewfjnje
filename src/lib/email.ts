@@ -12,13 +12,13 @@ export interface EmailOptions {
 export async function sendEmail({ to, subject, html, text }: EmailOptions) {
   try {
     // Use a verified sender email for SendGrid
-    const fromEmail = process.env.EMAIL_FROM || 'noreply@anara.com';
+    const fromEmail = process.env.EMAIL_FROM || 'noreply@dunorth.io';
     
     const msg = {
       to,
       from: {
         email: fromEmail,
-        name: 'Anara'
+        name: 'DuNorth'
       },
       subject,
       html,
