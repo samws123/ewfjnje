@@ -46,13 +46,13 @@ export const Footer: React.FC = () => {
             Where people and AI do research work together
           </h2>
           <p className="text-neutral-900 text-base font-medium tracking-[-0.4px] mb-9 max-w-2xl mx-auto">
-            Anara helps you find, understand, organize and produce scientific
+            DuNorth helps you find, understand, organize and produce scientific
             documents with AI. Take it for a spin today. No card required.
           </p>
 
           <div className="flex justify-center gap-3.5 mb-14 max-md:flex-col max-md:items-center">
             <Button variant="primary" size="lg" className="w-[143px]">
-              Get Anara free
+              Try for free
             </Button>
             <Button variant="secondary" size="lg" className="w-[142px]">
               Request demo
@@ -82,7 +82,7 @@ export const Footer: React.FC = () => {
             Where people and AI do research work together
           </h2>
           <p className="text-secondary-foreground leading-6 max-w-[750px] mt-7 mx-auto text-center text-balance">
-            Anara helps you find, understand, organize and produce scientific
+            DuNorth helps you find, understand, organize and produce scientific
             documents with AI. Take it for a spin today. No card required.
           </p>
           <div className="flex flex-row items-center justify-center gap-[14px] mt-12 mx-auto">
@@ -90,11 +90,12 @@ export const Footer: React.FC = () => {
               aria-busy="false"
               className="inline-flex items-center select-none relative justify-center whitespace-nowrap ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border bg-background-inverse text-text-inverse h-14 rounded-7 gap-5 tracking-normal text-base leading-4 font-medium hover:scale-[1.02] transition-all duration-200 ease-in-out !rounded-full px-7 py-6"
             >
-              <span className="truncate">Get Anara free</span>
+              <span className="truncate">Try for free</span>
             </button>
             <button
               aria-busy="false"
               className="inline-flex items-center select-none relative justify-center whitespace-nowrap ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border bg-secondary hover:bg-secondary-hover h-14 rounded-7 gap-5 tracking-normal text-text-primary text-base leading-4 font-medium hover:scale-[1.02] transition-all duration-200 ease-in-out !rounded-full px-7 py-6"
+              onClick={() => window.location.href = 'mailto:support@dunorth.io?subject=Demo Request --'}
             >
               <span className="truncate">Request demo</span>
             </button>

@@ -82,7 +82,7 @@ export const Features: React.FC = () => {
       altText: "Generate flashcards and multiple choice questions",
       description: (
         <>
-          Upload lecture slides, textbooks, or videos, and Anara will create
+          Upload lecture slides, textbooks, or videos, and DuNorth will create
           <br />
           flashcards and practice quizzes tailored to your specific materials
         </>
@@ -101,7 +101,7 @@ export const Features: React.FC = () => {
       altText: "Build a single, searchable library for all your projects",
       description: (
         <>
-          Whether working solo or collaborating with a team, Anara
+          Whether working solo or collaborating with a team, DuNorth
           <br />
           provides one organized place for all your scholarly work
         </>

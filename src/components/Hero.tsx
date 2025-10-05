@@ -102,7 +102,7 @@ export const Hero: React.FC = () => {
           }`}
         >
           <Button variant="primary" className="w-[143px]">
-            Get Anara free
+            Try for free
           </Button>
           <Button variant="secondary" className="w-[142px]">
             Request demo
@@ -123,6 +123,7 @@ export const Hero: React.FC = () => {
           <button
             aria-busy="false"
             className="inline-flex items-center select-none relative justify-center whitespace-nowrap ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border bg-secondary hover:bg-secondary-hover rounded-7 gap-5 tracking-normal text-text-primary text-base leading-4 font-medium hover:scale-[1.02] transition-all duration-200 ease-in-out !rounded-full px-7 py-6 h-[40px]"
+            onClick={() => window.location.href = 'mailto:support@dunorth.io?subject=Demo Request --'}
           >
             <span className="truncate">Request demo</span>
           </button>
