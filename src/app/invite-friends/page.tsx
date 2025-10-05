@@ -15,8 +15,18 @@ function InviteFriends() {
   const router = useRouter();
   const { user } = useAuth();
 
-  // Auto-redirect to dashboard if subscription is active
+  // Auto-redirect to dashboard if subscription is active or payment was completed
   useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const upgradeStatus = urlParams.get('upgrade');
+    
+    // If coming from successful payment, skip invite page and go straight to dashboard
+    if (upgradeStatus === 'success') {
+      console.log('Payment successful, redirecting to dashboard...');
+      router.push('/dashboard');
+      return;
+    }
+    
     if (user?.subscription_status === 'active') {
       console.log('Subscription is active, redirecting to dashboard...');
       router.push('/dashboard');
