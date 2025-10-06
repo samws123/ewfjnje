@@ -58,6 +58,18 @@ const Dashboard: React.FC = () => {
   const [syncMessage, setSyncMessage] = useState("");
   const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus | null>(null);
   const [checkingSubscription, setCheckingSubscription] = useState(true);
+  const [initialSyncCompleted, setInitialSyncCompleted] = useState(() => {
+    // Temporarily disable localStorage check for debugging
+    // Check if initial sync was completed in this session
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('initialCanvasSyncCompleted');
+      console.log('localStorage check:', stored);
+      // Temporarily always return false to force sync
+      return false; // stored === 'true';
+    }
+    return false;
+  });
+  const [cancellingSubscription, setCancellingSubscription] = useState(false);
   
   // Chat history integration
   const userId = user?.id || user?.email || 'anonymous';
@@ -89,6 +101,46 @@ const Dashboard: React.FC = () => {
       }
     }
   }, [chatHistory.messages.length]);
+
+  // Automatically sync Canvas data on first load
+  useEffect(() => {
+    const performInitialSync = async () => {
+      console.log('useEffect triggered with:', {
+        user: !!user,
+        checkingSubscription,
+        subscriptionActive: subscriptionStatus?.isActive,
+        initialSyncCompleted,
+        subscriptionStatus
+      });
+
+      // Only run if user is authenticated, subscription check is complete, and initial sync hasn't been done
+      if (user && !checkingSubscription && subscriptionStatus?.isActive && !initialSyncCompleted) {
+        console.log('Conditions met - Performing initial Canvas sync...');
+        try {
+          // Call the existing handleCanvasSync function
+          await handleCanvasSync();
+          setInitialSyncCompleted(true);
+          // Save completion status to localStorage for this session
+          localStorage.setItem('initialCanvasSyncCompleted', 'true');
+          console.log('Initial Canvas sync completed successfully');
+        } catch (error: any) {
+          console.error('Initial Canvas sync failed:', error);
+          // Don't mark as completed if sync failed
+        }
+      } else {
+        console.log('Conditions not met for initial sync');
+      }
+    };
+
+    performInitialSync();
+  }, [user, checkingSubscription, subscriptionStatus?.isActive, initialSyncCompleted]);
+
+  // Clear localStorage on component unmount (logout)
+  useEffect(() => {
+    return () => {
+      localStorage.removeItem('initialCanvasSyncCompleted');
+    };
+  }, []);
 
   const checkSubscriptionStatus = async () => {
     setCheckingSubscription(true);
@@ -152,7 +204,7 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  // Show loading while checking subscription
+  // Show loading while checking subscription only
   if (checkingSubscription) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
@@ -573,6 +625,42 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  const handleCancelSubscription = async () => {
+    if (!confirm('Are you sure you want to cancel your subscription? This action cannot be undone.')) {
+      return;
+    }
+
+    setCancellingSubscription(true);
+    try {
+      const response = await fetch('/api/stripe/cancel-subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include'
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        toast.success('Subscription cancelled successfully');
+        // Refresh subscription status
+        await checkSubscriptionStatus();
+        // Redirect to invite-friends page after cancellation
+        setTimeout(() => {
+          router.push('/invite-friends');
+        }, 2000);
+      } else {
+        throw new Error(data.error || 'Failed to cancel subscription');
+      }
+    } catch (error: any) {
+      console.error('Error cancelling subscription:', error);
+      toast.error(error.message || 'Failed to cancel subscription');
+    } finally {
+      setCancellingSubscription(false);
+    }
+  };
+
   return (
     <ProtectedRoute requireAuth={true} redirectTo="/signup">
       <div className="h-screen bg-white flex font-inter antialiased overflow-hidden">
@@ -937,6 +1025,52 @@ const Dashboard: React.FC = () => {
                       <span className="truncate">Chrome extension</span>
                     </button>
                   </div>
+                  
+                  {/* Cancel Subscription Button - Only show for active subscriptions */}
+                  {subscriptionStatus?.isActive && (
+                    <div
+                      role="menuitem"
+                      className="focus:outline-none group"
+                      tabIndex={-1}
+                      data-orientation="vertical"
+                      data-radix-collection-item=""
+                    >
+                      <button
+                        aria-busy="false"
+                        className="select-none relative whitespace-nowrap ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border text-red-600 hover:bg-red-50 data-[highlighted]:bg-red-50 data-[highlighted]:text-red-600 data-[state=open]:bg-red-50 data-[state=highlighted]:bg-red-50 group-data-[highlighted]:bg-red-50 group-data-[highlighted]:text-red-600 group-focus:bg-red-50 group-focus:text-red-600 h-[28px] px-1.5 py-2 text-sm rounded-4 font-medium gap-3 flex w-full flex-row justify-start items-center"
+                        onClick={handleCancelSubscription}
+                        disabled={cancellingSubscription}
+                      >
+                        <span className="shrink-0">
+                          {cancellingSubscription ? (
+                            <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-red-600"></div>
+                          ) : (
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="14"
+                              height="14"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className="lucide lucide-x-circle"
+                              aria-hidden="true"
+                            >
+                              <circle cx="12" cy="12" r="10"></circle>
+                              <path d="m15 9-6 6"></path>
+                              <path d="m9 9 6 6"></path>
+                            </svg>
+                          )}
+                        </span>
+                        <span className="truncate">
+                          {cancellingSubscription ? 'Cancelling...' : 'Cancel Subscription'}
+                        </span>
+                      </button>
+                    </div>
+                  )}
+                  
                   <div
                     role="menuitem"
                     className="focus:outline-none group"
@@ -2262,6 +2396,8 @@ const Dashboard: React.FC = () => {
                   </span>
                   <span className="truncate">Support</span>
                 </button>
+                
+             
               </div>
             </div>
           </div>
@@ -2306,7 +2442,12 @@ const Dashboard: React.FC = () => {
               <button
                 aria-busy="false"
                 className="inline-flex items-center select-none relative font-semibold justify-center whitespace-nowrap text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border bg-secondary text-secondary-foreground hover:bg-secondary-hover px-4 py-2 h-9.5 rounded-5 gap-3"
-                onClick={handleCanvasSync}
+                onClick={() => {
+                  // Clear localStorage to allow fresh sync
+                  localStorage.removeItem('initialCanvasSyncCompleted');
+                  setInitialSyncCompleted(false);
+                  handleCanvasSync();
+                }}
               disabled={syncing}
             >
               {syncing ? (

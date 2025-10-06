@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState, useEffect, useLayoutEffect } from "react";
-
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
@@ -9,6 +8,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import DuNorthLogo from "@/components/DuNorthLogo";
+import { loadCanvasSchools, type CanvasSchool } from "@/utils/canvasSchools";
 
 interface School {
   id: string;
@@ -24,38 +24,71 @@ export default function UserPurpose() {
   const [filteredSchools, setFilteredSchools] = useState<School[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [canvasSchools, setCanvasSchools] = useState<CanvasSchool[]>([]);
+  const [schoolsLoading, setSchoolsLoading] = useState(true);
   const router = useRouter();
   const { user, loading: authLoading, signOut } = useAuth();
 
+  // Debug logging
+  console.log('UserPurpose render:', { 
+    user: !!user, 
+    authLoading, 
+    checkingProfile, 
+    schoolsLoading,
+    userEmail: user?.email 
+  });
 
-  const schools: School[] = [
-    { id: '1', name: 'Stanford University', lms: 'canvas', base_url: 'https://canvas.stanford.edu' },
-    { id: '2', name: 'Massachusetts Institute of Technology', lms: 'canvas', base_url: 'https://canvas.mit.edu' },
-    { id: '3', name: 'UC Berkeley (bCourses)', lms: 'canvas', base_url: 'https://bcourses.berkeley.edu' },
-    { id: '4', name: 'UCLA (Bruin Learn)', lms: 'canvas', base_url: 'https://bruinlearn.ucla.edu' },
-    { id: '5', name: 'University of Chicago', lms: 'canvas', base_url: 'https://canvas.uchicago.edu' },
-    { id: '6', name: 'Yale University', lms: 'canvas', base_url: 'https://canvas.yale.edu' },
-    { id: '7', name: 'Columbia University (CourseWorks)', lms: 'canvas', base_url: 'https://courseworks.columbia.edu' },
-    { id: '8', name: 'Princeton University', lms: 'canvas', base_url: 'https://princeton.instructure.com' },
-    { id: '9', name: 'University of Pennsylvania', lms: 'canvas', base_url: 'https://canvas.upenn.edu' },
-    { id: '10', name: 'University of Michigan', lms: 'canvas', base_url: 'https://canvas.umich.edu' },
-    { id: '11', name: 'Penn State', lms: 'canvas', base_url: 'https://psu.instructure.com' },
-    { id: '12', name: 'University of Florida', lms: 'canvas', base_url: 'https://ufl.instructure.com' },
-    { id: '13', name: 'University of Utah', lms: 'canvas', base_url: 'https://utah.instructure.com' }
-  ];
+
+  // Load Canvas schools from CSV on component mount
+  useEffect(() => {
+    const loadSchools = async () => {
+      try {
+        const schools = await loadCanvasSchools();
+        setCanvasSchools(schools);
+      } catch (error) {
+        console.error('Failed to load Canvas schools:', error);
+      } finally {
+        setSchoolsLoading(false);
+      }
+    };
+
+    loadSchools();
+  }, []);
+
+  // Convert CanvasSchool to School format for compatibility
+  const schools: School[] = canvasSchools.map(school => ({
+    id: school.id,
+    name: school.name,
+    lms: school.lms,
+    base_url: school.base_url
+  }));
 
   useLayoutEffect(() => {
     // Check if user is authenticated
     if (!authLoading && !user) {
+      console.log('No user found, redirecting to signup');
       router.push('/signup');
       return;
     }
     
     // Check if user already has a school selected
-    if (user) {
+    if (user && !authLoading) {
+      console.log('User found, checking existing school selection');
       checkExistingSchoolSelection();
     }
   }, [user, authLoading, router]);
+
+  // Add a timeout to prevent infinite loading
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (checkingProfile) {
+        console.log('Timeout reached, stopping profile check');
+        setCheckingProfile(false);
+      }
+    }, 10000); // 10 second timeout
+
+    return () => clearTimeout(timeout);
+  }, [checkingProfile]);
 
   const checkSubscriptionAndRedirect = async () => {
     // First check cached user data
@@ -106,12 +139,18 @@ export default function UserPurpose() {
         else{
           setCheckingProfile(false);
         }
+      } else {
+        // If API call fails (e.g., user not authenticated), stop checking
+        console.log('Profile check failed, user may not be authenticated');
+        setCheckingProfile(false);
       }
     } catch (error) {
       console.error('Error checking user profile:', error);
       // Continue with school selection if there's an error
+      setCheckingProfile(false);
     } finally {
-
+      // Ensure we always stop the loading state
+      setCheckingProfile(false);
     }
   };
 
@@ -206,12 +245,14 @@ export default function UserPurpose() {
   };
 
   // Show loading screen while checking auth or profile
-  if (authLoading || checkingProfile) {
+  if (authLoading || checkingProfile || schoolsLoading) {
     return (
       <div className="min-h-screen bg-white flex flex-col items-center justify-center px-4">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+          <p className="text-gray-600">
+            {schoolsLoading ? 'Loading schools...' : 'Loading...'}
+          </p>
         </div>
       </div>
     );
