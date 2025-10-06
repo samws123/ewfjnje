@@ -47,7 +47,6 @@ const Dashboard: React.FC = () => {
   const { user, signOut } = useAuth();
   const [inputValue, setInputValue] = useState("");
   const [isSending, setIsSending] = useState(false);
-  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [modelDropdownOpen, setModelDropdownOpen] = useState(false);
@@ -2210,70 +2209,37 @@ const Dashboard: React.FC = () => {
                     </div>
                   </DialogContent>
                 </Dialog>
-                <Popover open={isFeedbackOpen} onOpenChange={setIsFeedbackOpen}>
-                  <PopoverTrigger asChild>
-                    <button
-                      aria-busy="false"
-                      className="inline-flex items-center select-none relative whitespace-nowrap ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border hover:bg-control-primary focus:bg-popover-hover focus:text-accent-foreground data-[highlighted]:bg-popover-hover data-[highlighted]:text-accent-foreground overflow-hidden font-medium w-full text-text-primary justify-start text-sm px-4 py-2 h-9.5 rounded-5 rounded-4 gap-3 duration-0"
-                      type="button"
+                <button
+                  aria-busy="false"
+                  className="inline-flex items-center select-none relative whitespace-nowrap ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border hover:bg-control-primary focus:bg-popover-hover focus:text-accent-foreground data-[highlighted]:bg-popover-hover data-[highlighted]:text-accent-foreground overflow-hidden font-medium w-full text-text-primary justify-start text-sm px-4 py-2 h-9.5 rounded-5 rounded-4 gap-3 duration-0"
+                  type="button"
+                  onClick={() => window.location.href = 'mailto:support@dunorth.io?subject=Feedback --'}
+                >
+                  <span className="shrink-0">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="15"
+                      height="15"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="lucide lucide-thumbs-up flex-shrink-0 text-text-primary"
+                      aria-hidden="true"
                     >
-                      <span className="shrink-0">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="15"
-                          height="15"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="lucide lucide-thumbs-up flex-shrink-0 text-text-primary"
-                          aria-hidden="true"
-                        >
-                          <path d="M7 10v12"></path>
-                          <path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"></path>
-                        </svg>
-                      </span>
-                      <span className="truncate">Feedback</span>
-                    </button>
-                  </PopoverTrigger>
-
-                  <PopoverContent
-                    side="top"
-                    align="start"
-                    sideOffset={5}
-                    className="w-[250px] bg-white p-4 rounded-xl shadow-lg border"
-                  >
-                    <div>
-                      <textarea
-                        placeholder="How can we improve Anara?"
-                        className="w-full h-20 p-2 text-base border-none resize-none focus:outline-none placeholder-gray-500"
-                      />
-                      <div className="flex justify-end items-center mt-2 space-x-3">
-                        <button
-                          onClick={() => setIsFeedbackOpen(false)}
-                          className="px-4 py-2 text-sm font-semibold bg-gray-100 hover:bg-gray-200 rounded-lg"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          onClick={() => setIsFeedbackOpen(false)} // Submit के बाद भी बंद करें
-                          className="px-4 py-2 text-sm font-semibold text-white bg-black hover:bg-gray-800 rounded-lg"
-                        >
-                          Submit
-                        </button>
-                      </div>
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                      <path d="M7 10v12"></path>
+                      <path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"></path>
+                    </svg>
+                  </span>
+                  <span className="truncate">Feedback</span>
+                </button>
                 <button
                   aria-busy="false"
                   className="inline-flex items-center select-none relative whitespace-nowrap ring-offset-background transition-colors focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border hover:bg-control-primary focus:bg-popover-hover focus:text-accent-foreground data-[highlighted]:bg-popover-hover data-[highlighted]:text-accent-foreground overflow-hidden font-medium w-full text-text-primary justify-start text-sm px-4 py-2 h-9.5 rounded-5 rounded-4 gap-3 data-[state=open]:bg-control-primary focus-visible:outline-none focus-visible:ring-0 duration-0"
                   type="button"
-                  aria-haspopup="menu"
-                  aria-expanded="false"
-                  data-state="closed"
+                  onClick={() => window.location.href = 'mailto:support@dunorth.io?subject=Support question --'}
                 >
                   <span className="shrink-0">
                     <svg
