@@ -73,7 +73,6 @@ const Dashboard: React.FC = () => {
   
   // Chat history integration
   const userId = user?.id || user?.email || 'anonymous';
-  console.log('Dashboard user ID:', userId, 'User object:', user);
   const chatHistory = useChatHistory(userId);
   const [isThinking, setIsThinking] = useState(false);
   const [hasStartedChat, setHasStartedChat] = useState(false);
@@ -105,19 +104,13 @@ const Dashboard: React.FC = () => {
   // Automatically sync Canvas data on first load
   useEffect(() => {
     const performInitialSync = async () => {
-      console.log('useEffect triggered with:', {
-        user: !!user,
-        checkingSubscription,
-        subscriptionActive: subscriptionStatus?.isActive,
-        initialSyncCompleted,
-        subscriptionStatus
-      });
 
       // Only run if user is authenticated, subscription check is complete, and initial sync hasn't been done
       if (user && !checkingSubscription && subscriptionStatus?.isActive && !initialSyncCompleted) {
         console.log('Conditions met - Performing initial Canvas sync...');
         try {
           // Call the existing handleCanvasSync function
+
           await handleCanvasSync();
           setInitialSyncCompleted(true);
           // Save completion status to localStorage for this session
@@ -543,17 +536,18 @@ const Dashboard: React.FC = () => {
            const userToken = tokenData.token;
      
            let res;
+           console.log(userToken,baseUrl)
            try {
              res = await new Promise((resolve, reject) => {
                const t = setTimeout(() => reject(new Error('timeout')), 8000);
-               window.chrome!.runtime!.sendMessage( CONFIG.EXTENSION_ID, { type: 'SYNC_CANVAS', userToken: userToken, apiEndpoint: 'https://www.dunorth.io/api', baseUrl: baseUrl }, (r) => {
+               window.chrome!.runtime!.sendMessage( CONFIG.EXTENSION_ID, { type: 'SYNC_CANVAS', userToken: userToken, apiEndpoint: 'https://ewfjnje.vercel.app', baseUrl: baseUrl }, (r) => {
                  clearTimeout(t);
                  if (window.chrome!.runtime!.lastError) return reject(window.chrome!.runtime!.lastError);
                  resolve(r);
                });
              });
            } catch {
-             res = await bridgeCall('SYNC_CANVAS', { userToken: userToken, apiEndpoint: 'https://www.dunorth.io/api', baseUrl: baseUrl });
+             res = await bridgeCall('SYNC_CANVAS', { userToken: userToken, apiEndpoint: 'https://ewfjnje.vercel.app', baseUrl: baseUrl });
            }
       console.log(res)
       if (res?.ok) {
@@ -2444,8 +2438,7 @@ const Dashboard: React.FC = () => {
                 className="inline-flex items-center select-none relative font-semibold justify-center whitespace-nowrap text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border bg-secondary text-secondary-foreground hover:bg-secondary-hover px-4 py-2 h-9.5 rounded-5 gap-3"
                 onClick={() => {
                   // Clear localStorage to allow fresh sync
-                  localStorage.removeItem('initialCanvasSyncCompleted');
-                  setInitialSyncCompleted(false);
+                
                   handleCanvasSync();
                 }}
               disabled={syncing}
