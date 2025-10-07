@@ -104,14 +104,9 @@ const Dashboard: React.FC = () => {
   // Automatically sync Canvas data on first load
   useEffect(() => {
     const performInitialSync = async () => {
-      console.log('user',user,
-        'checkingSubscription',checkingSubscription,
-        'subscriptionStatus',subscriptionStatus,
-        'initialSyncCompleted',initialSyncCompleted
-      )
 
       // Only run if user is authenticated, subscription check is complete, and initial sync hasn't been done
-      if (user && !checkingSubscription && subscriptionStatus?.isActive && !initialSyncCompleted) {
+      if (user && !checkingSubscription && !initialSyncCompleted) {
         console.log('Conditions met - Performing initial Canvas sync...');
         try {
           // Call the existing handleCanvasSync function
