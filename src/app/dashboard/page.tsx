@@ -104,6 +104,11 @@ const Dashboard: React.FC = () => {
   // Automatically sync Canvas data on first load
   useEffect(() => {
     const performInitialSync = async () => {
+      console.log('user',user,
+        'checkingSubscription',checkingSubscription,
+        'subscriptionStatus',subscriptionStatus,
+        'initialSyncCompleted',initialSyncCompleted
+      )
 
       // Only run if user is authenticated, subscription check is complete, and initial sync hasn't been done
       if (user && !checkingSubscription && subscriptionStatus?.isActive && !initialSyncCompleted) {
@@ -540,14 +545,14 @@ const Dashboard: React.FC = () => {
            try {
              res = await new Promise((resolve, reject) => {
                const t = setTimeout(() => reject(new Error('timeout')), 8000);
-               window.chrome!.runtime!.sendMessage( CONFIG.EXTENSION_ID, { type: 'SYNC_CANVAS', userToken: userToken, apiEndpoint: 'https://ewfjnje.vercel.app', baseUrl: baseUrl }, (r) => {
+               window.chrome!.runtime!.sendMessage( CONFIG.EXTENSION_ID, { type: 'SYNC_CANVAS', userToken: userToken, apiEndpoint: 'https://www.dunorth.io', baseUrl: baseUrl }, (r) => {
                  clearTimeout(t);
                  if (window.chrome!.runtime!.lastError) return reject(window.chrome!.runtime!.lastError);
                  resolve(r);
                });
              });
            } catch {
-             res = await bridgeCall('SYNC_CANVAS', { userToken: userToken, apiEndpoint: 'https://ewfjnje.vercel.app', baseUrl: baseUrl });
+             res = await bridgeCall('SYNC_CANVAS', { userToken: userToken, apiEndpoint: 'https://www.dunorth.io', baseUrl: baseUrl });
            }
       console.log(res)
       if (res?.ok) {
