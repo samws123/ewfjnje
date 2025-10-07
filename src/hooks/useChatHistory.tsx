@@ -158,26 +158,42 @@ export function useChatHistory(userId: string): UseChatHistoryReturn {
       setMessages(prev => [...prev, userMessage]);
 
       // Send to API
-      const response = await fetch('/api/chat', {
+      // const response = await fetch('/api/chat', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({
+      //     userId,
+      //     message: content,
+      //     conversationId: currentConversationId,
+      //   }),
+      // });
+
+      const chatbook_webhook_url = process.env.CHATBOT_WEBHOOK!  ?? "https://edin80688.app.n8n.cloud/webhook-test/c0ba841d-6cf1-41b4-9572-ffb2ea977625"
+      const payload = {
+        userId,
+            message: content,
+            conversationId: currentConversationId,
+      }
+      const response = await fetch(chatbook_webhook_url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId,
-          message: content,
-          conversationId: currentConversationId,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        // Always cache-bust for dynamic responses
+        cache: 'no-store',
       });
 
       const data = await response.json();
+
+      console.log("Chat Response Data: ", {data})
       
       if (response.ok) {
         // Add assistant response
         const assistantMessage: Message = {
           id: (Date.now() + 1).toString(),
           role: 'assistant',
-          content: data.text,
+          content: data.output,
           timestamp: new Date()
         };
         
