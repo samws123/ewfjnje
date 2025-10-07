@@ -54,6 +54,7 @@ export default function UserPurpose() {
 
     loadSchools();
   }, []);
+  
 
   // Convert CanvasSchool to School format for compatibility
   const schools: School[] = canvasSchools.map(school => ({
@@ -169,11 +170,8 @@ export default function UserPurpose() {
       return;
     }
     
-    if (searchQuery.length === 0) {
-      // Show all schools when input is focused but empty
-      setFilteredSchools(schools.slice(0, 8));
-      setShowSuggestions(true);
-    } else if (searchQuery.length >= 1) {
+    // Only show suggestions if there's text in the search query
+    if (searchQuery.length >= 1) {
       setShowSuggestions(true);
     }
   };
