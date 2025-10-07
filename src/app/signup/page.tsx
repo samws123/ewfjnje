@@ -287,7 +287,7 @@ export default function SignUp() {
           </p>
         </div>
       </div>
-      <div className="flex flex-col items-center justify-center py-8 text-text-secondary3 w-64 text-center fixed bottom-0">
+      <div className="flex flex-col items-center justify-center py-8 text-text-secondary3 w-64 text-center fixed bottom-0 left-1/2 transform -translate-x-1/2">
         <span className="text-sm text-text-tertiary">
           By continuing, you agree to DuNorth's{" "}
           <a
@@ -307,8 +307,8 @@ export default function SignUp() {
           >
             Privacy Policy
           </a>
-          .
-        </span>
+          </span>
+        
       </div>
  
     </ProtectedRoute>
