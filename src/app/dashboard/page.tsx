@@ -131,7 +131,7 @@ const Dashboard: React.FC = () => {
     };
 
     performInitialSync();
-  }, [user, checkingSubscription, subscriptionStatus?.isActive, initialSyncCompleted]);
+  }, [initialSyncCompleted]);
 
   // Clear localStorage on component unmount (logout)
   useEffect(() => {
