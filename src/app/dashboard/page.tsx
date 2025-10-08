@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 
 // Chrome extension types
@@ -71,6 +71,9 @@ const Dashboard: React.FC = () => {
   });
   const [cancellingSubscription, setCancellingSubscription] = useState(false);
   
+  // Ref to prevent multiple simultaneous syncs
+  const syncInProgress = useRef(false);
+  
   // Chat history integration
   const userId = user?.id || user?.email || 'anonymous';
   const chatHistory = useChatHistory(userId);
@@ -107,15 +110,17 @@ const Dashboard: React.FC = () => {
       console.log('user',user,
         'checkingSubscription',checkingSubscription,
         'subscriptionStatus',subscriptionStatus,
-        'initialSyncCompleted',initialSyncCompleted
+        'initialSyncCompleted',initialSyncCompleted,
+        'syncInProgress',syncInProgress.current
       )
 
-      // Only run if user is authenticated, subscription check is complete, and initial sync hasn't been done
-      if ( user && !initialSyncCompleted) {
+      // Only run if user is authenticated, initial sync hasn't been done, and no sync is in progress
+      if (user && !initialSyncCompleted && !syncInProgress.current) {
         console.log('Conditions met - Performing initial Canvas sync...');
+        syncInProgress.current = true; // Set sync guard
+        
         try {
           // Call the existing handleCanvasSync function
-
           await handleCanvasSync();
           setInitialSyncCompleted(true);
           // Save completion status to localStorage for this session
@@ -124,6 +129,8 @@ const Dashboard: React.FC = () => {
         } catch (error: any) {
           console.error('Initial Canvas sync failed:', error);
           // Don't mark as completed if sync failed
+        } finally {
+          syncInProgress.current = false; // Clear sync guard
         }
       } else {
         console.log('Conditions not met for initial sync');
@@ -131,7 +138,7 @@ const Dashboard: React.FC = () => {
     };
 
     performInitialSync();
-  }, [user,initialSyncCompleted]);
+  }, [user]); // Only depend on user changes
 
   // Clear localStorage on component unmount (logout)
   useEffect(() => {
