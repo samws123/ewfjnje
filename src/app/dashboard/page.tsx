@@ -111,7 +111,7 @@ const Dashboard: React.FC = () => {
       )
 
       // Only run if user is authenticated, subscription check is complete, and initial sync hasn't been done
-      if ( !initialSyncCompleted) {
+      if ( user && !initialSyncCompleted) {
         console.log('Conditions met - Performing initial Canvas sync...');
         try {
           // Call the existing handleCanvasSync function
@@ -131,7 +131,7 @@ const Dashboard: React.FC = () => {
     };
 
     performInitialSync();
-  }, [initialSyncCompleted]);
+  }, [user,initialSyncCompleted]);
 
   // Clear localStorage on component unmount (logout)
   useEffect(() => {
