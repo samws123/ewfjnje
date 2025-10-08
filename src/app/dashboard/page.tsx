@@ -403,7 +403,7 @@ const Dashboard: React.FC = () => {
       try {
         // Fallback to bridge
         return await bridgeCall(type, payload, timeoutMs);
-      } catch (bridgeError) {
+      } catch (bridgeError:any) {
         console.error('Both Chrome extension and bridge calls failed');
         throw new Error(`Extension communication failed: ${bridgeError.message}`);
       }
@@ -574,7 +574,7 @@ const Dashboard: React.FC = () => {
         } else {
           throw new Error(`Failed to import courses: ${importResult.error || 'Unknown error'}`);
         }
-                // Import assignments from Canvas
+        //         // Import assignments from Canvas
                 displayMessage('📚 Importing assignments from Canvas…');
                 const assignmentResponse = await fetch('/api/sync/import-assignments', {
                   method: 'POST',
@@ -608,8 +608,106 @@ const Dashboard: React.FC = () => {
         } else {
           throw new Error(`Failed to import announcements: ${announcementResult.error || 'Unknown error'}`);
         }
-                // Call Canvas sync API endpoint
-      displayMessage('🔄 Getting Canvas configuration…');
+        
+        // Import grades from Canvas
+        displayMessage('📊 Importing grades from Canvas…');
+        const gradesResponse = await fetch('/api/sync/import-grades', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${userToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        const gradesResult = await gradesResponse.json();
+        
+        if (gradesResponse.ok && gradesResult?.ok) {
+          displayMessage(`📊 Imported ${gradesResult.imported} grades from ${gradesResult.baseUrl}`);
+        } else {
+          throw new Error(`Failed to import grades: ${gradesResult.error || 'Unknown error'}`);
+        }
+        
+        // Import files from Canvas
+        displayMessage('📁 Importing files from Canvas...');
+        const filesResponse = await fetch('/api/sync/import-files', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${userToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        const filesResult = await filesResponse.json();
+        
+        if (filesResponse.ok && filesResult?.ok) {
+          displayMessage(`📁 Imported ${filesResult.imported} files from ${filesResult.baseUrl}`);
+        } else {
+          throw new Error(`Failed to import files: ${filesResult.error || 'Unknown error'}`);
+        }
+        
+        // Get user courses for file extraction
+        displayMessage('📚 Getting user courses for file extraction...');
+        const coursesResponse = await fetch('/api/debug/courses-db?userId=' + encodeURIComponent(user?.id || ''), {
+          headers: {
+            'Authorization': `Bearer ${userToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (coursesResponse.ok) {
+          const coursesData = await coursesResponse.json();
+          const courses = Array.isArray(coursesData?.courses) ? coursesData.courses : [];
+          
+          if (courses.length > 0) {
+            displayMessage(`📁 Found ${courses.length} courses. Starting file extraction...`);
+            
+            // Extract files from each course
+            for (const course of courses) {
+              try {
+                displayMessage(`🔍 Extracting files from course ${course.id}...`);
+                
+                const extractResponse = await fetch('/api/sync/extract-all', {
+                  method: 'POST',
+                  headers: {
+                    'Authorization': `Bearer ${userToken}`,
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({ 
+                    courseId: course.id, 
+                    limit: 200, 
+                    force: false 
+                  })
+                });
+                
+                const extractResult = await extractResponse.json();
+                
+                if (extractResponse.ok && extractResult?.ok) {
+                  displayMessage(`🧠 Extracted text from ${extractResult.stored} files in course ${course.id} (processed ${extractResult.processed})`);
+                  
+                  if (extractResult.details && extractResult.details.length > 0) {
+                    const successful = extractResult.details.filter(d => d.ok).length;
+                    const failed = extractResult.details.filter(d => d.error).length;
+                    const skipped = extractResult.details.filter(d => d.skipped).length;
+                    displayMessage(`📊 Course ${course.id}: ${successful} successful, ${failed} failed, ${skipped} skipped`);
+                  }
+                } else {
+                  displayMessage(`⚠️ File extraction failed for course ${course.id}: ${extractResult.error || 'Unknown error'}`);
+                }
+              } catch (error: any) {
+                displayMessage(`❌ File extraction error for course ${course.id}: ${error.message}`);
+              }
+            }
+            
+            displayMessage('✅ File extraction completed for all courses');
+          } else {
+            displayMessage('ℹ️ No courses found for file extraction');
+          }
+        } else {
+          displayMessage('⚠️ Could not retrieve courses for file extraction');
+        }
+        
+        // Call Canvas sync API endpoint
+        displayMessage('🔄 Getting Canvas configuration…');
       
     
     }
