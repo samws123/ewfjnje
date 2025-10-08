@@ -80,11 +80,11 @@ const Dashboard: React.FC = () => {
   const [isChatAccordionOpen, setIsChatAccordionOpen] = useState(true);
 
   //Check subscription status on component mount
-  useEffect(() => {
-    if (user) {
-      checkSubscriptionStatus();
-    }
-  }, [user]);
+  // useEffect(() => {
+  //   if (user) {
+  //     checkSubscriptionStatus();
+  //   }
+  // }, [user]);
 
   // Update hasStartedChat based on messages or current conversation
   useEffect(() => {
@@ -203,16 +203,16 @@ const Dashboard: React.FC = () => {
   };
 
   // Show loading while checking subscription only
-  if (checkingSubscription) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
+  // if (checkingSubscription) {
+  //   return (
+  //     <div className="min-h-screen bg-white flex items-center justify-center">
+  //       <div className="text-center">
+  //         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+  //         <p className="text-gray-600">Loading...</p>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   // Extension communication configuration
   const CONFIG = {
@@ -296,20 +296,19 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  // Function to parse and render HTML-like content
   const parseMessageContent = (content: string) => {
     // Clean up the content first
     let cleanContent = content
       // Remove HTML code block markers
-      .replace(/```html\s*/gi, '')
-      .replace(/```\s*/g, '')
+      ?.replace(/```html\s*/gi, '')
+      ?.replace(/```\s*/g, '')
       // Remove error messages and unwanted patterns
-      .replace(/ERROR:\s*INVALID\s*INPUT/gi, '')
-      .replace(/•The input provided does not appear to be a valid question or request\./gi, '')
-      .replace(/•Please provide a clear question or topic for assistance\./gi, '')
+      ?.replace(/ERROR:\s*INVALID\s*INPUT/gi, '')
+      ?.replace(/•The input provided does not appear to be a valid question or request\./gi, '')
+      ?.replace(/•Please provide a clear question or topic for assistance\./gi, '')
       // Clean up extra whitespace and newlines
-      .replace(/\n\s*\n/g, '\n')
-      .trim();
+      ?.replace(/\n\s*\n/g, '\n')
+      ?.trim();
 
     // Simple HTML parser for basic tags
     const htmlPattern = /<(h1|h2|h3|ul|li|p|strong|em)(?:\s[^>]*)?>([\s\S]*?)<\/\1>/gi;
@@ -334,9 +333,9 @@ const Dashboard: React.FC = () => {
     }
 
     // Add remaining text
-    if (lastIndex < cleanContent.length) {
-      const remainingText = cleanContent.slice(lastIndex);
-      if (remainingText.trim()) {
+    if (lastIndex < cleanContent?.length) {
+      const remainingText = cleanContent?.slice(lastIndex);
+      if (remainingText?.trim()) {
         parts.push({ type: 'text', content: remainingText });
       }
     }
