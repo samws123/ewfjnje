@@ -54,7 +54,7 @@ export const CanvasSync: React.FC<CanvasSyncProps> = ({ className = "" }) => {
       try {
         // Fallback to bridge
         return await bridgeCall(type, payload, timeoutMs);
-      } catch (bridgeError) {
+      } catch (bridgeError: any) {
         console.error('Both Chrome extension and bridge calls failed');
         throw new Error(`Extension communication failed: ${bridgeError.message}`);
       }

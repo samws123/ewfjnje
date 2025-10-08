@@ -9,6 +9,14 @@ export async function getUserCourses(userId: string): Promise<any[]> {
 }
 
 /**
+ * Get user's assignments
+ */
+export async function getUserAssignments(userId: string): Promise<any[]> {
+  const result = await pool.query(`SELECT id, course_id FROM assignments WHERE user_id = $1 LIMIT 1000`, [userId]);
+  return result.rows;
+}
+
+/**
  * Upsert course to database
  */
 export async function upsertCourse(userId: string, course: any): Promise<void> {
@@ -96,4 +104,71 @@ export async function upsertAnnouncement(userId: string, announcement: any, cour
         announcement
       ]
     );
+}
+export async function upsertGrade(userId: string, submission: any, assignmentId: number | null, courseId: number): Promise<void> {
+  await pool.query(
+    `INSERT INTO grades(user_id, id, assignment_id, course_id, student_id, score, grade, excused, late, missing, submitted_at, graded_at, workflow_state, submission_type, attempt, raw_json)
+     VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
+     ON CONFLICT (user_id, id) DO UPDATE SET
+       assignment_id = EXCLUDED.assignment_id,
+       course_id = EXCLUDED.course_id,
+       student_id = EXCLUDED.student_id,
+       score = EXCLUDED.score,
+       grade = EXCLUDED.grade,
+       excused = EXCLUDED.excused,
+       late = EXCLUDED.late,
+       missing = EXCLUDED.missing,
+       submitted_at = EXCLUDED.submitted_at,
+       graded_at = EXCLUDED.graded_at,
+       workflow_state = EXCLUDED.workflow_state,
+       submission_type = EXCLUDED.submission_type,
+       attempt = EXCLUDED.attempt,
+       raw_json = EXCLUDED.raw_json`,
+    [
+      userId,
+      submission.id,
+      assignmentId,
+      courseId,
+      submission.user_id || null,
+      submission.score || null,
+      submission.grade || null,
+      submission.excused || false,
+      submission.late || false,
+      submission.missing || false,
+      submission.submitted_at ? new Date(submission.submitted_at) : null,
+      submission.graded_at ? new Date(submission.graded_at) : null,
+      submission.workflow_state || null,
+      submission.submission_type || null,
+      submission.attempt || null,
+      submission
+    ]
+  );
+}
+
+/**
+ * upsert file to database
+ */
+export async function upsertFile(userId: string, file: any, courseId: number, publicUrl?: string | null): Promise<void> {
+  await pool.query(
+          `INSERT INTO files(user_id, id, course_id, filename, content_type, size, download_url, public_download_url, raw_json)
+           VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)
+           ON CONFLICT (user_id, id) DO UPDATE SET 
+             filename=EXCLUDED.filename, 
+             content_type=EXCLUDED.content_type, 
+             size=EXCLUDED.size, 
+             download_url=EXCLUDED.download_url, 
+             public_download_url=EXCLUDED.public_download_url, 
+             raw_json=EXCLUDED.raw_json`,
+          [
+            userId, 
+            file.id, 
+            courseId, 
+            file.display_name || file.filename || null, 
+            file.content_type || null, 
+            file.size || null, 
+            file.url || null, 
+            publicUrl, 
+            file
+          ]
+        );
 }

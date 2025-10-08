@@ -268,6 +268,26 @@ export async function initializeDatabase() {
       )
     `);
 
+    // Create files table if it doesn't exist
+    await query(`
+      CREATE TABLE IF NOT EXISTS files (
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        id BIGINT NOT NULL,
+        course_id BIGINT NOT NULL,
+        filename TEXT,
+        display_name TEXT,
+        content_type TEXT,
+        size BIGINT,
+        url TEXT,
+        public_download_url TEXT,
+        extracted_text TEXT,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW(),
+        raw_json JSONB,
+        PRIMARY KEY (user_id, id)
+      )
+    `);
+
     // Create conversations table for chat history
     await query(`
       CREATE TABLE IF NOT EXISTS conversations (
