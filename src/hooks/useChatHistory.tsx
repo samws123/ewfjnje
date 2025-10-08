@@ -170,7 +170,7 @@ export function useChatHistory(userId: string): UseChatHistoryReturn {
       //   }),
       // });
 
-      const chatbook_webhook_url = process.env.CHATBOT_WEBHOOK!  ?? "https://edin80688.app.n8n.cloud/webhook-test/c0ba841d-6cf1-41b4-9572-ffb2ea977625"
+      const chatbook_webhook_url = process.env.NEXT_PUBLIC_CHATBOT_WEBHOOK!  ?? "https://edin80688.app.n8n.cloud/webhook/c0ba841d-6cf1-41b4-9572-ffb2ea977625"
       const payload = {
         userId,
             message: content,
