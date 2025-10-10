@@ -3,23 +3,29 @@ import { Inter } from 'next/font/google'
 // import './globals.css'
 import { Providers } from './providers'
 import "../index.css";
+import '@/lib/init-db'; // Initialize database on app startup
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'pixel-perfect-playbook-66',
-  description: 'Lovable Generated Project',
-  authors: [{ name: 'Lovable' }],
+  title: 'DuNorth',
+  description: 'DuNorth - Your Academic Assistant',
+  authors: [{ name: 'DuNorth' }],
+  icons: {
+    icon: '/dunorth_fav.png',
+    shortcut: '/dunorth_fav.png',
+    apple: '/dunorth_fav.png',
+  },
   openGraph: {
-    title: 'pixel-perfect-playbook-66',
-    description: 'Lovable Generated Project',
+    title: 'DuNorth',
+    description: 'DuNorth - Your Academic Assistant',
     type: 'website',
-    images: ['https://lovable.dev/opengraph-image-p98pqg.png'],
+    images: ['/dunorth_fav.png'],
   },
   twitter: {
     card: 'summary_large_image',
-    site: '@lovable_dev',
-    images: ['https://lovable.dev/opengraph-image-p98pqg.png'],
+    site: '@dunorth',
+    images: ['/dunorth_fav.png'],
   },
 }
 
