@@ -147,6 +147,7 @@ export function useChatHistory(userId: string): UseChatHistoryReturn {
 
   const sendMessage = useCallback(async (content: string) => {
     // Optimistically add user message
+    
     const userMessage: Message = {
       id: Date.now().toString(),
       role: 'user',
