@@ -317,8 +317,16 @@ const Dashboard: React.FC = () => {
       ?.replace(/\n\s*\n/g, '\n')
       ?.trim();
 
-    // Simple HTML parser for basic tags
-    const htmlPattern = /<(h1|h2|h3|ul|li|p|strong|em)(?:\s[^>]*)?>([\s\S]*?)<\/\1>/gi;
+    // Check if content is HTML by looking for HTML tags
+    const hasHtmlTags = /<[^>]+>/g.test(cleanContent);
+    
+    if (hasHtmlTags) {
+      // If it's HTML, use dangerouslySetInnerHTML for proper rendering
+      return [{ type: 'html', content: cleanContent }];
+    }
+
+    // Fallback to the original parsing for non-HTML content
+    const htmlPattern = /<(h1|h2|h3|ul|li|p|strong|em|div)(?:\s[^>]*)?>([\s\S]*?)<\/\1>/gi;
     const parts = [];
     let lastIndex = 0;
     let match;
@@ -356,6 +364,19 @@ const Dashboard: React.FC = () => {
     
     return parts.map((part, index) => {
       switch (part.type) {
+        case 'html':
+          // Render HTML content directly using dangerouslySetInnerHTML
+          return (
+            <div 
+              key={index} 
+              className="text-gray-700 html-content"
+              dangerouslySetInnerHTML={{ __html: part.content }}
+              style={{
+                fontSize: '14px',
+                lineHeight: '1.5'
+              }}
+            />
+          );
         case 'h1':
           return <h1 key={index} className="text-xl font-bold text-gray-900 mb-3 mt-2">{part.content}</h1>;
         case 'h2':
@@ -393,6 +414,8 @@ const Dashboard: React.FC = () => {
           return <strong key={index} className="font-semibold">{part.content}</strong>;
         case 'em':
           return <em key={index} className="italic">{part.content}</em>;
+        case 'div':
+          return <div key={index} className="text-sm text-gray-700 mb-2">{part.content}</div>;
         default:
           return <span key={index} className="text-sm whitespace-pre-wrap">{part.content}</span>;
       }
@@ -766,7 +789,58 @@ const Dashboard: React.FC = () => {
 
   return (
     <ProtectedRoute requireAuth={true} redirectTo="/signup">
-      <div className="h-screen bg-white flex font-inter antialiased overflow-hidden">
+      <>
+        <style jsx>{`
+          .html-content h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 0.75rem;
+            margin-top: 0.5rem;
+          }
+          .html-content h2 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+            margin-top: 0.5rem;
+          }
+          .html-content h3 {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+            margin-top: 0.25rem;
+          }
+          .html-content ul {
+            list-style: none;
+            margin-left: 0.5rem;
+            margin-bottom: 0.75rem;
+          }
+          .html-content li {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 0.25rem;
+          }
+          .html-content li::before {
+            content: "•";
+            color: #6b7280;
+            margin-right: 0.5rem;
+            margin-top: 0.125rem;
+          }
+          .html-content strong {
+            font-weight: 600;
+            color: #111827;
+          }
+          .html-content p {
+            margin-bottom: 0.5rem;
+            color: #374151;
+          }
+          .html-content div {
+            color: #374151;
+          }
+        `}</style>
+        <div className="h-screen bg-white flex font-inter antialiased overflow-hidden">
         {/* Sidebar */}
         {sidebarVisible && (
         <div className="w-64 bg-gray-50 border-r border-gray-200 pt-4 flex flex-col h-full">
@@ -2962,6 +3036,7 @@ const Dashboard: React.FC = () => {
       </div>
       </div>
       </div>
+      </>
     </ProtectedRoute>
   );
 };

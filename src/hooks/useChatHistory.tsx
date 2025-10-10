@@ -146,49 +146,81 @@ export function useChatHistory(userId: string): UseChatHistoryReturn {
   }, []);
 
   const sendMessage = useCallback(async (content: string) => {
+    // Optimistically add user message
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: 'user',
+      content,
+      timestamp: new Date()
+    };
+    
     try {
-      // Optimistically add user message
-      const userMessage: Message = {
-        id: Date.now().toString(),
-        role: 'user',
-        content,
-        timestamp: new Date()
-      };
-      
       setMessages(prev => [...prev, userMessage]);
 
-      // Send to API
-      // const response = await fetch('/api/chat', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({
-      //     userId,
-      //     message: content,
-      //     conversationId: currentConversationId,
-      //   }),
-      // });
+      let conversationId = currentConversationId;
+      
+      // Create new conversation if needed
+      if (!conversationId) {
+        try {
+          const newConversationResponse = await fetch('/api/chat/conversations', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'user-id': userId
+            },
+            body: JSON.stringify({
+              title: content.slice(0, 50) + (content.length > 50 ? '...' : '')
+            })
+          });
+          
+          if (newConversationResponse.ok) {
+            const newConversationData = await newConversationResponse.json();
+            conversationId = newConversationData.conversation.id;
+            setCurrentConversationId(conversationId);
+          }
+        } catch (error) {
+          console.error('Error creating conversation:', error);
+        }
+      }
 
-      const chatbook_webhook_url = process.env.NEXT_PUBLIC_CHATBOT_WEBHOOK!  ?? "https://edin80688.app.n8n.cloud/webhook/c0ba841d-6cf1-41b4-9572-ffb2ea977625"
+      // Save user message to database
+      if (conversationId) {
+        try {
+          await fetch('/api/chat/messages', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              conversationId,
+              role: 'user',
+              content
+            })
+          });
+        } catch (error) {
+          console.error('Error saving user message:', error);
+        }
+      }
+
+      // Call webhook for AI response
+      const chatbook_webhook_url = process.env.NEXT_PUBLIC_CHATBOT_WEBHOOK ?? "https://edin80688.app.n8n.cloud/webhook/c0ba841d-6cf1-41b4-9572-ffb2ea977625"
       const payload = {
         userId,
-            message: content,
-            conversationId: currentConversationId,
+        message: content,
+        conversationId,
       }
+      
       const response = await fetch(chatbook_webhook_url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
-        // Always cache-bust for dynamic responses
         cache: 'no-store',
       });
 
       const data = await response.json();
-
       console.log("Chat Response Data: ", {data})
       
-      if (response.ok) {
+      if (response.ok && data.output) {
         // Add assistant response
         const assistantMessage: Message = {
           id: (Date.now() + 1).toString(),
@@ -199,25 +231,39 @@ export function useChatHistory(userId: string): UseChatHistoryReturn {
         
         setMessages(prev => [...prev, assistantMessage]);
         
-        // Update conversation ID if this was a new conversation
-        if (!currentConversationId && data.conversationId) {
-          setCurrentConversationId(data.conversationId);
-          // Refresh conversations list to include the new one
-          await loadConversations();
-        } else if (currentConversationId) {
-          // If we're in an existing conversation, also refresh to update message counts
-          await loadConversations();
+        // Save assistant message to database
+        if (conversationId) {
+          try {
+            await fetch('/api/chat/messages', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                conversationId,
+                role: 'assistant',
+                content: data.output
+              })
+            });
+          } catch (error) {
+            console.error('Error saving assistant message:', error);
+          }
         }
+        
+        // Refresh conversations list to update message counts
+        await loadConversations();
       } else {
         // Remove optimistic user message on error
         setMessages(prev => prev.filter(msg => msg.id !== userMessage.id));
-        throw new Error(data.text || 'Failed to send message');
+        throw new Error(data.error || data.text || 'Failed to send message');
       }
     } catch (error) {
       console.error('Error sending message:', error);
+      // Remove optimistic user message on error
+      setMessages(prev => prev.filter(msg => msg.id !== userMessage.id));
       throw error;
     }
-  }, [userId, currentConversationId]);
+  }, [userId, currentConversationId, loadConversations]);
 
   const loadMoreMessages = useCallback(async () => {
     if (currentConversationId && hasMoreMessages && !messagesLoading) {
