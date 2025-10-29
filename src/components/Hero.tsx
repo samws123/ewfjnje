@@ -72,7 +72,7 @@ export const Hero: React.FC = () => {
               : "opacity-0 translate-y-12 scale-95"
           }`}
         >
-          AI that Integrates
+          An AI tutor that integrates
           <br />
           with your LMS
         </h1>
