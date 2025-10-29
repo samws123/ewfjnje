@@ -247,8 +247,8 @@ export const Header: React.FC = () => {
             </div>
           </nav>
           <button
-            aria-busy="false"
-            className="inline-flex items-center relative justify-center whitespace-nowrap text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border text-black hover:bg-control-primary data-[highlighted]:bg-popover-hover data-[highlighted]:text-accent-foreground data-[state=open]:bg-popover-hover data-[state=highlighted]:bg-popover-hover group-data-[highlighted]:bg-popover-hover group-data-[highlighted]:text-accent-foreground group-focus:bg-popover-hover group-focus:text-accent-foreground px-4 py-2 h-9.5 rounded-5 gap-3 font-medium leading-none tracking-[-0.32px] grow antialiased select-none font-system"
+            className="inline-flex items-center relative justify-center whitespace-nowrap text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border text-black hover:bg-control-primary px-4 py-2 h-9.5 rounded-5 gap-3 font-medium leading-none tracking-[-0.32px] grow antialiased select-none font-system"
+            onClick={() => router.push('/pricing')}
           >
             <span>Pricing</span>
           </button>
@@ -418,6 +418,10 @@ export const Header: React.FC = () => {
             <button
               aria-busy="false"
               className="inline-flex items-center relative whitespace-nowrap ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border text-text-primary hover:bg-control-primary data-[highlighted]:bg-popover-hover data-[highlighted]:text-accent-foreground data-[state=open]:bg-popover-hover data-[state=highlighted]:bg-popover-hover group-data-[highlighted]:bg-popover-hover group-data-[highlighted]:text-accent-foreground group-focus:bg-popover-hover group-focus:text-accent-foreground py-2 h-9.5 rounded-5 gap-3 justify-start px-4 text-sm font-[550] select-none"
+              onClick={() => {
+                setIsMenuOpen(false);
+                router.push('/pricing');
+              }}
             >
               <span className="truncate">Pricing</span>
             </button>
