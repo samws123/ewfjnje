@@ -72,9 +72,9 @@ export const Hero: React.FC = () => {
               : "opacity-0 translate-y-12 scale-95"
           }`}
         >
-          An AI tutor that integrates
+          A set of AI tutors
           <br />
-          with your LMS
+          that integrate with your LMS
         </h1>
 
         {/* <p
@@ -90,8 +90,7 @@ export const Hero: React.FC = () => {
           className="text-secondary-foreground leading-6 max-w-[750px] mt-7 mx-auto text-center text-balance"
           style={{ opacity: 1, filter: "blur(0px)", transform: "none" }}
         >
-          The moment you sign up, we link up to your Canvas, and do all your readings
-          assignments, and studying with you — to save hours each week.
+          The moment you sign up, we link up to your Canvas, Blackboard, or other LMS and guide you through your studying — to save hours each week.
         </p>
 
         {/* <div
