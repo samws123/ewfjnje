@@ -14,17 +14,13 @@ export function middleware(req: NextRequest) {
     return NextResponse.redirect(url, 307)
   }
 
-  // Rewrite /closedbeta(/**) directly to the proxy (no page route required)
+  // Redirect /closedbeta(/**) straight to external target to bypass app auth entirely
   {
     const url = new URL(req.url)
     if (url.pathname.startsWith('/closedbeta')) {
       const upstreamPath = url.pathname.replace(/^\/closedbeta/, '') || '/'
-      const proxied = new URL('/api/nectir-proxy', url)
-      proxied.searchParams.set(
-        'url',
-        `https://ai.nectir.io${upstreamPath}${url.search || ''}`
-      )
-      return NextResponse.rewrite(proxied)
+      const dest = new URL(`https://ai.nectir.io${upstreamPath}${url.search || ''}`)
+      return NextResponse.redirect(dest, 307)
     }
   }
 
