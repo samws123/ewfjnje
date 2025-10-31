@@ -1,13 +1,7 @@
 'use client';
 
-import { useMemo } from 'react';
-
 export default function ClosedBeta() {
-  const src = useMemo(() => {
-    const url = new URL('/api/nectir-proxy', window.location.origin);
-    url.searchParams.set('url', 'https://ai.nectir.io/');
-    return url.toString();
-  }, []);
+  const src = '/api/nectir-proxy?url=https://ai.nectir.io/';
 
   return (
     <div style={{ height: '100vh', width: '100vw', margin: 0, padding: 0 }}>
