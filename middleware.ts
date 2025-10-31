@@ -6,6 +6,14 @@ const allowedOrigins = [
 ]
 
 export function middleware(req: NextRequest) {
+  // Force apex to www for all paths
+  const host = req.headers.get('host') || ''
+  if (host === 'dunorth.io') {
+    const url = new URL(req.url)
+    url.host = 'www.dunorth.io'
+    return NextResponse.redirect(url, 307)
+  }
+
   const origin = req.headers.get('origin') || ''
   const isAllowedOrigin = allowedOrigins.includes(origin)
 
@@ -31,7 +39,7 @@ export function middleware(req: NextRequest) {
   return response
 }
 
-// Apply middleware to API routes only (optional)
 export const config = {
-  matcher: ['/api/:path*'],
+  // run on everything so apex → www redirect always applies
+  matcher: ['/(.*)'],
 }
