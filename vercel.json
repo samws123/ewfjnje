@@ -1,9 +1,3 @@
-{
-  "version": 2,
-  "redirects": [
-    { "source": "/closedbeta", "destination": "https://ai.nectir.io/", "permanent": false },
-    { "source": "/closedbeta/(.*)", "destination": "https://ai.nectir.io/$1", "permanent": false }
-  ]
-}
+{}
 
 

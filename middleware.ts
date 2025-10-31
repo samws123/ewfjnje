@@ -14,15 +14,7 @@ export function middleware(req: NextRequest) {
     return NextResponse.redirect(url, 307)
   }
 
-  // Redirect /closedbeta(/**) straight to external target to bypass app auth entirely
-  {
-    const url = new URL(req.url)
-    if (url.pathname.startsWith('/closedbeta')) {
-      const upstreamPath = url.pathname.replace(/^\/closedbeta/, '') || '/'
-      const dest = new URL(`https://ai.nectir.io${upstreamPath}${url.search || ''}`)
-      return NextResponse.redirect(dest, 307)
-    }
-  }
+  // No special routing now; the /closedbeta page will iframe the proxy
 
   const origin = req.headers.get('origin') || ''
   const isAllowedOrigin = allowedOrigins.includes(origin)
