@@ -14,6 +14,20 @@ export function middleware(req: NextRequest) {
     return NextResponse.redirect(url, 307)
   }
 
+  // Rewrite /closedbeta(/**) directly to the proxy (no page route required)
+  {
+    const url = new URL(req.url)
+    if (url.pathname.startsWith('/closedbeta')) {
+      const upstreamPath = url.pathname.replace(/^\/closedbeta/, '') || '/'
+      const proxied = new URL('/api/nectir-proxy', url)
+      proxied.searchParams.set(
+        'url',
+        `https://ai.nectir.io${upstreamPath}${url.search || ''}`
+      )
+      return NextResponse.rewrite(proxied)
+    }
+  }
+
   const origin = req.headers.get('origin') || ''
   const isAllowedOrigin = allowedOrigins.includes(origin)
 
