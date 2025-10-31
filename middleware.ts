@@ -19,6 +19,12 @@ export function middleware(req: NextRequest) {
 
   const response = NextResponse.next()
 
+  // Ensure /closedbeta is never cached by browsers/CDN
+  const url = new URL(req.url)
+  if (url.pathname.startsWith('/closedbeta')) {
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+  }
+
   // Set basic CORS headers
   if (isAllowedOrigin) {
     response.headers.set('Access-Control-Allow-Origin', origin)
