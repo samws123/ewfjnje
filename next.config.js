@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactStrictMode: true,
+  images: {
+    domains: ['api.builder.io', 'pexels.com'],
+    unoptimized: true,
+  },
   async rewrites() {
     return [
       { source: '/closedbeta', destination: '/api/nectir-proxy?path=/' },
@@ -9,14 +14,3 @@ const nextConfig = {
 };
 
 module.exports = nextConfig;
-
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  reactStrictMode: true,
-  images: {
-    domains: ['api.builder.io', 'pexels.com'],
-    unoptimized: true
-  }
-}
-
-module.exports = nextConfig
