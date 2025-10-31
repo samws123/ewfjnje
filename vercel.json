@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    { "source": "/closedbeta", "destination": "https://ai.nectir.io/" },
+    { "source": "/closedbeta/(.*)", "destination": "https://ai.nectir.io/$1" }
+  ]
+}
+
+
