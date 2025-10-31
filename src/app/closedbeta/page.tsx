@@ -1,7 +1,6 @@
 'use client'
 
 export const dynamic = 'force-dynamic'
-export const revalidate = 0
 
 export default function ClosedBeta() {
   const src = '/api/nectir-proxy?url=https://ai.nectir.io/'
