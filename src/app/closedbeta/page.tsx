@@ -1,6 +1,11 @@
 export const dynamic = 'force-dynamic'
 
 export default function ClosedBeta() {
+  try {
+    // eslint-disable-next-line no-console
+    console.log(`[ClosedBeta] render ${new Date().toISOString()} runtime=${process.env.NEXT_RUNTIME || 'node'}`)
+  } catch {}
+
   const src = '/api/nectir-proxy?url=https://ai.nectir.io/'
   return (
     <div style={{ height: '100vh', width: '100vw', margin: 0, padding: 0 }}>

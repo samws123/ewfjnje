@@ -6,15 +6,28 @@ const allowedOrigins = [
 ]
 
 export function middleware(req: NextRequest) {
+  // Debug: log host and URL early
+  try {
+    // eslint-disable-next-line no-console
+    console.log(`[MW] start ${new Date().toISOString()} host=${req.headers.get('host')} url=${req.url}`)
+  } catch {}
+
   // Force apex to www for all paths
   const host = req.headers.get('host') || ''
   if (host === 'dunorth.io') {
     const url = new URL(req.url)
     url.host = 'www.dunorth.io'
+    try { console.log(`[MW] apex->www redirect to ${url.href}`) } catch {}
     return NextResponse.redirect(url, 307)
   }
 
   // No special routing now; the /closedbeta page will iframe the proxy
+  {
+    const u = new URL(req.url)
+    if (u.pathname.startsWith('/closedbeta')) {
+      try { console.log(`[MW] /closedbeta pass-through pathname=${u.pathname} search=${u.search}`) } catch {}
+    }
+  }
 
   const origin = req.headers.get('origin') || ''
   const isAllowedOrigin = allowedOrigins.includes(origin)
@@ -38,12 +51,14 @@ export function middleware(req: NextRequest) {
 
   // Handle preflight requests
   if (req.method === 'OPTIONS') {
+    try { console.log('[MW] OPTIONS preflight handled') } catch {}
     return new NextResponse(null, {
       status: 204,
       headers: response.headers,
     })
   }
 
+  try { console.log('[MW] next()') } catch {}
   return response
 }
 

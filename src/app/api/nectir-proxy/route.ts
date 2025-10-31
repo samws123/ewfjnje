@@ -28,6 +28,10 @@ async function proxy(req: NextRequest) {
   }
 
   const method = req.method.toUpperCase();
+  try {
+    // eslint-disable-next-line no-console
+    console.log(`[Proxy] ${new Date().toISOString()} method=${method} input=${req.url} -> target=${target.href}`)
+  } catch {}
   const headers = new Headers(req.headers);
   headers.set('host', new URL(TARGET_ORIGIN).host);
   headers.set('origin', TARGET_ORIGIN);
@@ -43,6 +47,8 @@ async function proxy(req: NextRequest) {
     body,
     redirect: 'manual',
   });
+
+  try { console.log(`[Proxy] upstream status=${upstream.status} content-type=${upstream.headers.get('content-type')}`) } catch {}
 
   const outHeaders = new Headers(upstream.headers);
   outHeaders.delete('x-frame-options');
