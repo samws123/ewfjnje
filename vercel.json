@@ -1,3 +1,9 @@
-{}
+{
+  "version": 2,
+  "rewrites": [
+    { "source": "/closedbeta", "destination": "/api/nectir-proxy?path=/" },
+    { "source": "/closedbeta/(.*)", "destination": "/api/nectir-proxy?path=/$1" }
+  ]
+}
 
 
