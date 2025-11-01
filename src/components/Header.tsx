@@ -35,7 +35,7 @@ export const Header: React.FC = () => {
           href="/"
         >
           <svg
-            className="w-[76px] h-auto -ml-[6px] scale-x-[1.015]"
+            className="w-[96px] h-auto -ml-[6px] scale-x-[1.015]"
             viewBox="0 0 298 79"
             role="img"
             aria-label="DuNorth logo"

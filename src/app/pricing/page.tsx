@@ -34,7 +34,7 @@ export default function PricingPage() {
                   <span className="mt-1 inline-flex h-5 w-5 md:h-6 md:w-6 items-center justify-center rounded-full bg-[#EEF6FF] ring-1 ring-[#4299ff]/20">
                     <Check className="text-[#2F7FE8]" size={14} strokeWidth={3} />
                   </span>
-                  <span className="text-black/65">{item}</span>
+                  <span className="text-[#6b7280]">{item}</span>
                 </li>
               ))}
             </ul>
