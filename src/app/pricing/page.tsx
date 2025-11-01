@@ -117,7 +117,7 @@ export default function PricingPage() {
                     placeholder="Your intended use-case"
                   />
                 </div>
-                <button type="submit" className="w-full h-[46px] rounded-full bg-black text-white text-[15px] font-semibold hover:bg-black/90 transition-colors">
+                <button type="submit" className="w-full h-[46px] rounded-md bg-black text-white text-[15px] font-semibold hover:bg-black/90 transition-colors">
                   Request demo
                 </button>
               </div>
