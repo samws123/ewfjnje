@@ -68,11 +68,11 @@ export default function Home() {
 
       {/* Debug button (temporary) */}
       <button
-        onClick={() => router.push('/closedbeta?v=debug')}
+        onClick={() => router.push('/trial?v=debug')}
         className="fixed bottom-5 right-5 z-50 bg-black text-white text-xs px-3 py-2 rounded-md shadow hover:bg-gray-800"
-        aria-label="Go to Closed Beta (debug)"
+        aria-label="Go to Trial (debug)"
       >
-        Closed Beta (debug)
+        Trial (debug)
       </button>
     </div>
   );

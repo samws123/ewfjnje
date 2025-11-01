@@ -21,29 +21,15 @@ export function middleware(req: NextRequest) {
     return NextResponse.redirect(url, 307)
   }
 
-  // Explicitly rewrite /closedbeta(/**) to our proxy so edge runs and logs
-  {
-    const u = new URL(req.url)
-    if (u.pathname.startsWith('/closedbeta')) {
-      const upstreamPath = u.pathname.replace(/^\/closedbeta/, '') || '/'
-      const proxied = new URL('/api/nectir-proxy', u)
-      proxied.searchParams.set('url', `https://ai.nectir.io${upstreamPath}${u.search || ''}`)
-      try { console.log(`[MW] rewrite /closedbeta -> ${proxied.href}`) } catch {}
-      const res = NextResponse.rewrite(proxied)
-      res.headers.set('x-debug-mw', 'rewrite-closedbeta')
-      res.headers.set('x-debug-mw-proxied', proxied.href)
-      return res
-    }
-  }
+  const url = new URL(req.url)
 
   const origin = req.headers.get('origin') || ''
   const isAllowedOrigin = allowedOrigins.includes(origin)
 
   const response = NextResponse.next()
 
-  // Ensure /closedbeta is never cached by browsers/CDN
-  const url = new URL(req.url)
-  if (url.pathname.startsWith('/closedbeta')) {
+  // Ensure /trial is never cached by browsers/CDN
+  if (url.pathname.startsWith('/trial')) {
     response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
   }
 
