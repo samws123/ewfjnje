@@ -240,11 +240,15 @@ export const Header: React.FC = () => {
                       </a>
                       <button
                         onClick={() => {
-                          const section = document.getElementById('stats');
-                          if (section) {
-                            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                          }
                           resourcesDropdown.setOpen(false);
+                          if (window.location.pathname === '/') {
+                            const section = document.getElementById('stats');
+                            if (section) {
+                              section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }
+                          } else {
+                            window.location.href = '/#stats';
+                          }
                         }}
                         className="block w-full text-left px-5 py-2 text-sm text-gray-900 rounded-sm hover:bg-gray-100"
                       >
@@ -252,11 +256,15 @@ export const Header: React.FC = () => {
                       </button>
                       <button
                         onClick={() => {
-                          const section = document.getElementById('faqs');
-                          if (section) {
-                            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                          }
                           resourcesDropdown.setOpen(false);
+                          if (window.location.pathname === '/') {
+                            const section = document.getElementById('faqs');
+                            if (section) {
+                              section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }
+                          } else {
+                            window.location.href = '/#faqs';
+                          }
                         }}
                         className="block w-full text-left px-5 py-2 text-sm text-gray-900 rounded-sm hover:bg-gray-100"
                       >
