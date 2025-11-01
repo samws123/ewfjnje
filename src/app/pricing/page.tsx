@@ -19,7 +19,7 @@ export default function PricingPage() {
               Meet DuNorth<br />Enterprise
             </h1>
             <p className="mt-6 text-[18px] leading-7 text-black/70 max-w-[48ch]">
-              DuNorth helps your students learn faster with AI—safely and at scale. We’d love to show you how.
+              DuNorth helps your students learn faster with AI -- safely and at scale. We’d love to show you how.
             </p>
             <ul className="mt-10 space-y-3">
               {[
