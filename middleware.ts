@@ -21,11 +21,18 @@ export function middleware(req: NextRequest) {
     return NextResponse.redirect(url, 307)
   }
 
-  // No special routing now; the /closedbeta page will iframe the proxy
+  // Explicitly rewrite /closedbeta(/**) to our proxy so edge runs and logs
   {
     const u = new URL(req.url)
     if (u.pathname.startsWith('/closedbeta')) {
-      try { console.log(`[MW] /closedbeta pass-through pathname=${u.pathname} search=${u.search}`) } catch {}
+      const upstreamPath = u.pathname.replace(/^\/closedbeta/, '') || '/'
+      const proxied = new URL('/api/nectir-proxy', u)
+      proxied.searchParams.set('url', `https://ai.nectir.io${upstreamPath}${u.search || ''}`)
+      try { console.log(`[MW] rewrite /closedbeta -> ${proxied.href}`) } catch {}
+      const res = NextResponse.rewrite(proxied)
+      res.headers.set('x-debug-mw', 'rewrite-closedbeta')
+      res.headers.set('x-debug-mw-proxied', proxied.href)
+      return res
     }
   }
 
