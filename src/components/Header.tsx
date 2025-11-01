@@ -125,22 +125,22 @@ export const Header: React.FC = () => {
                       transition={{ duration: 0.35, ease: [0.4, 0.2, 0.2, 1] }}
                     >
                       <a
-                        href="/use-cases/marketing"
+                        href="/use-cases/students"
                         className="block px-5 py-2 text-sm text-gray-900 rounded-sm hover:bg-gray-100"
                       >
-                        Marketing
+                        Students
                       </a>
                       <a
-                        href="/use-cases/sales"
+                        href="/use-cases/faculty"
                         className="block px-5 py-2 text-sm text-gray-900 rounded-sm hover:bg-gray-100"
                       >
-                        Sales
+                        Faculty
                       </a>
                       <a
-                        href="/use-cases/support"
+                        href="/use-cases/administrators"
                         className="block px-5 py-2 text-sm text-gray-900 rounded-sm hover:bg-gray-100"
                       >
-                        Support
+                        Administrators
                       </a>
                     </motion.div>
                   )}

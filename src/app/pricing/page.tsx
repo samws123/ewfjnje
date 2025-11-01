@@ -47,43 +47,43 @@ export default function PricingPage() {
               className="self-start w-full max-w-[560px] space-y-6"
               onSubmit={(e) => { e.preventDefault(); setSubmitted(true) }}
             >
-              <div className="space-y-7">
+              <div className="space-y-8">
                 <div>
-                  <label className="block text-[17px] font-bold text-black mb-2">
+                  <label className="block text-[17px] font-bold text-black mb-2.5">
                     What's your work email? <span className="text-black">*</span>
                   </label>
                   <input 
                     type="email"
-                    className="w-full h-[52px] rounded-md border border-[#e5e7eb] bg-white px-4 text-[15px] text-black outline-none focus:border-[#d1d5db] placeholder:text-[#9ca3af] transition-colors font-normal" 
+                    className="w-full h-[46px] rounded-md border border-[#e5e7eb] bg-white px-4 text-[15px] text-black outline-none focus:border-[#d1d5db] placeholder:text-[#9ca3af] transition-colors font-normal" 
                     placeholder="name@company.com" 
                   />
                 </div>
                 <div>
-                  <label className="block text-[17px] font-bold text-black mb-2">
+                  <label className="block text-[17px] font-bold text-black mb-2.5">
                     What's your company name? <span className="text-black">*</span>
                   </label>
                   <input 
                     type="text"
-                    className="w-full h-[52px] rounded-md border border-[#e5e7eb] bg-white px-4 text-[15px] text-black outline-none focus:border-[#d1d5db] placeholder:text-[#9ca3af] transition-colors font-normal" 
+                    className="w-full h-[46px] rounded-md border border-[#e5e7eb] bg-white px-4 text-[15px] text-black outline-none focus:border-[#d1d5db] placeholder:text-[#9ca3af] transition-colors font-normal" 
                     placeholder="Your company's name" 
                   />
                 </div>
                 <div>
-                  <label className="block text-[17px] font-bold text-black mb-2">
+                  <label className="block text-[17px] font-bold text-black mb-2.5">
                     What's your name? <span className="text-black">*</span>
                   </label>
                   <input 
                     type="text"
-                    className="w-full h-[52px] rounded-md border border-[#e5e7eb] bg-white px-4 text-[15px] text-black outline-none focus:border-[#d1d5db] placeholder:text-[#9ca3af] transition-colors font-normal" 
+                    className="w-full h-[46px] rounded-md border border-[#e5e7eb] bg-white px-4 text-[15px] text-black outline-none focus:border-[#d1d5db] placeholder:text-[#9ca3af] transition-colors font-normal" 
                     placeholder="Your name" 
                   />
                 </div>
                 <div>
-                  <label className="block text-[17px] font-bold text-black mb-2">
+                  <label className="block text-[17px] font-bold text-black mb-2.5">
                     How many people at your company? <span className="text-black">*</span>
                   </label>
                   <select 
-                    className="w-full h-[52px] rounded-md border border-[#e5e7eb] bg-white px-4 text-[15px] text-[#9ca3af] outline-none focus:border-[#d1d5db] transition-colors font-normal appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%239ca3af%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E')] bg-[length:20px] bg-[right_12px_center] bg-no-repeat"
+                    className="w-full h-[46px] rounded-md border border-[#e5e7eb] bg-white px-4 text-[15px] text-[#9ca3af] outline-none focus:border-[#d1d5db] transition-colors font-normal appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%239ca3af%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E')] bg-[length:20px] bg-[right_12px_center] bg-no-repeat"
                   >
                     <option value="">Company headcount</option>
                     <option value="1-10">1-10</option>
@@ -95,11 +95,11 @@ export default function PricingPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[17px] font-bold text-black mb-2">
+                  <label className="block text-[17px] font-bold text-black mb-2.5">
                     How many seats are you interested in? <span className="text-black">*</span>
                   </label>
                   <select 
-                    className="w-full h-[52px] rounded-md border border-[#e5e7eb] bg-white px-4 text-[15px] text-[#9ca3af] outline-none focus:border-[#d1d5db] transition-colors font-normal appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%239ca3af%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E')] bg-[length:20px] bg-[right_12px_center] bg-no-repeat"
+                    className="w-full h-[46px] rounded-md border border-[#e5e7eb] bg-white px-4 text-[15px] text-[#9ca3af] outline-none focus:border-[#d1d5db] transition-colors font-normal appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%239ca3af%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E')] bg-[length:20px] bg-[right_12px_center] bg-no-repeat"
                   >
                     <option value="">Seats needed</option>
                     <option value="1-10">1-10</option>
@@ -111,15 +111,15 @@ export default function PricingPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[17px] font-bold text-black mb-2">
+                  <label className="block text-[17px] font-bold text-black mb-2.5">
                     What brought you to DuNorth? <span className="text-black">*</span>
                   </label>
                   <textarea 
-                    className="w-full h-[120px] rounded-md border border-[#e5e7eb] bg-white px-4 py-3 text-[15px] text-black outline-none focus:border-[#d1d5db] placeholder:text-[#9ca3af] transition-colors resize-none font-normal" 
+                    className="w-full h-[110px] rounded-md border border-[#e5e7eb] bg-white px-4 py-3 text-[15px] text-black outline-none focus:border-[#d1d5db] placeholder:text-[#9ca3af] transition-colors resize-none font-normal" 
                     placeholder="Your intended use-case"
                   />
                 </div>
-                <button type="submit" className="w-full h-[52px] rounded-md bg-black text-white text-[15px] font-semibold hover:bg-black/90 transition-colors">
+                <button type="submit" className="w-full h-[46px] rounded-md bg-black text-white text-[15px] font-semibold hover:bg-black/90 transition-colors">
                   Request demo
                 </button>
               </div>
