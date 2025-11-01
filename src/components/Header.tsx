@@ -128,10 +128,12 @@ export const Header: React.FC = () => {
                         onClick={() => {
                           useCasesDropdown.setOpen(false);
                           if (window.location.pathname === '/') {
-                            const section = document.getElementById('testimonials');
-                            if (section) {
-                              section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                            }
+                            setTimeout(() => {
+                              const section = document.getElementById('testimonials');
+                              if (section) {
+                                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                              }
+                            }, 100);
                           } else {
                             window.location.href = '/#testimonials';
                           }
@@ -242,10 +244,12 @@ export const Header: React.FC = () => {
                         onClick={() => {
                           resourcesDropdown.setOpen(false);
                           if (window.location.pathname === '/') {
-                            const section = document.getElementById('stats');
-                            if (section) {
-                              section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                            }
+                            setTimeout(() => {
+                              const section = document.getElementById('stats');
+                              if (section) {
+                                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                              }
+                            }, 100);
                           } else {
                             window.location.href = '/#stats';
                           }
@@ -258,10 +262,12 @@ export const Header: React.FC = () => {
                         onClick={() => {
                           resourcesDropdown.setOpen(false);
                           if (window.location.pathname === '/') {
-                            const section = document.getElementById('faqs');
-                            if (section) {
-                              section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                            }
+                            setTimeout(() => {
+                              const section = document.getElementById('faqs');
+                              if (section) {
+                                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                              }
+                            }, 100);
                           } else {
                             window.location.href = '/#faqs';
                           }
