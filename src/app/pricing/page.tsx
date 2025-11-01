@@ -42,41 +42,41 @@ export default function PricingPage() {
 
           {/* Right: Non-functional form (visual only) */}
           <form
-            className="self-start rounded-3xl ring-1 ring-black/10 p-8 bg-white shadow-[0_1px_0_rgba(0,0,0,0.04),0_16px_40px_rgba(0,0,0,0.04)]"
+            className="self-start w-full max-w-[560px] space-y-6"
             onSubmit={(e) => e.preventDefault()}
           >
-            <div className="space-y-5">
+            <div className="space-y-6">
               <div>
-                <label className="block text-[13px] font-medium mb-2">Work email</label>
-                <input className="w-full h-12 rounded-xl border border-black/15 px-4 outline-none focus:border-black/30" placeholder="name@school.edu" />
+                <label className="block text-[13px] font-medium text-black/80 mb-2">Work email</label>
+                <input className="w-full h-12 rounded-xl border border-slate-200 px-4 outline-none focus:border-slate-300 placeholder:text-slate-400 transition-colors" placeholder="name@school.edu" />
               </div>
               <div>
-                <label className="block text-[13px] font-medium mb-2">Institution / company</label>
-                <input className="w-full h-12 rounded-xl border border-black/15 px-4 outline-none focus:border-black/30" placeholder="University / Organization" />
+                <label className="block text-[13px] font-medium text-black/80 mb-2">Institution / company</label>
+                <input className="w-full h-12 rounded-xl border border-slate-200 px-4 outline-none focus:border-slate-300 placeholder:text-slate-400 transition-colors" placeholder="University / Organization" />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-[13px] font-medium mb-2">First name</label>
-                  <input className="w-full h-12 rounded-xl border border-black/15 px-4 outline-none focus:border-black/30" />
+                  <label className="block text-[13px] font-medium text-black/80 mb-2">First name</label>
+                  <input className="w-full h-12 rounded-xl border border-slate-200 px-4 outline-none focus:border-slate-300 placeholder:text-slate-400 transition-colors" />
                 </div>
                 <div>
-                  <label className="block text-[13px] font-medium mb-2">Last name</label>
-                  <input className="w-full h-12 rounded-xl border border-black/15 px-4 outline-none focus:border-black/30" />
+                  <label className="block text-[13px] font-medium text-black/80 mb-2">Last name</label>
+                  <input className="w-full h-12 rounded-xl border border-slate-200 px-4 outline-none focus:border-slate-300 placeholder:text-slate-400 transition-colors" />
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-[13px] font-medium mb-2">Headcount</label>
-                  <input className="w-full h-12 rounded-xl border border-black/15 px-4 outline-none focus:border-black/30" placeholder="e.g. 10,000" />
+                  <label className="block text-[13px] font-medium text-black/80 mb-2">Headcount</label>
+                  <input className="w-full h-12 rounded-xl border border-slate-200 px-4 outline-none focus:border-slate-300 placeholder:text-slate-400 transition-colors" placeholder="e.g. 10,000" />
                 </div>
                 <div>
-                  <label className="block text-[13px] font-medium mb-2">Seats needed</label>
-                  <input className="w-full h-12 rounded-xl border border-black/15 px-4 outline-none focus:border-black/30" placeholder="e.g. 1,000" />
+                  <label className="block text-[13px] font-medium text-black/80 mb-2">Seats needed</label>
+                  <input className="w-full h-12 rounded-xl border border-slate-200 px-4 outline-none focus:border-slate-300 placeholder:text-slate-400 transition-colors" placeholder="e.g. 1,000" />
                 </div>
               </div>
               <div>
-                <label className="block text-[13px] font-medium mb-2">What brought you to DuNorth?</label>
-                <textarea className="w-full rounded-xl border border-black/15 px-4 py-3 outline-none focus:border-black/30" rows={4} placeholder="Tell us your intended use case" />
+                <label className="block text-[13px] font-medium text-black/80 mb-2">What brought you to DuNorth?</label>
+                <textarea className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-slate-300 placeholder:text-slate-400 transition-colors" rows={4} placeholder="Tell us your intended use case" />
               </div>
               <button className="w-full h-12 rounded-xl bg-black text-white font-medium hover:bg-black/85">Request demo</button>
             </div>
