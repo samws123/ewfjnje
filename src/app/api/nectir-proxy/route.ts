@@ -55,13 +55,29 @@ async function proxy(req: NextRequest) {
   outHeaders.delete('content-security-policy');
   outHeaders.set('referrer-policy', 'no-referrer');
 
+  const blocklist = [
+    'x-middleware-rewrite',
+    'x-middleware-next',
+    'x-nextjs-rewrite',
+    'x-nextjs-redirect',
+  ];
+  blocklist.forEach((header) => outHeaders.delete(header));
+
   const loc = outHeaders.get('location');
   if (loc) {
-    const replaced = loc.replace(
-      /^https:\/\/ai\.nectir\.io/gi,
-      `/api/nectir-proxy?url=https://ai.nectir.io`
-    );
-    outHeaders.set('location', replaced);
+    let rewrittenLocation = loc;
+    try {
+      const targetUrl = new URL(loc, TARGET_ORIGIN);
+      const targetHost = new URL(TARGET_ORIGIN).hostname;
+      if (targetUrl.hostname === targetHost) {
+        const encoded = encodeURIComponent(targetUrl.toString());
+        rewrittenLocation = `/api/nectir-proxy?url=${encoded}`;
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.warn(`[Proxy] Failed to rewrite redirect location "${loc}":`, error);
+    }
+    outHeaders.set('location', rewrittenLocation);
   }
 
   const setCookie = upstream.headers.get('set-cookie');
