@@ -30,11 +30,11 @@ export default function PricingPage() {
                 'Priority support & onboarding',
                 'Dedicated account manager',
               ].map((item) => (
-                <li key={item} className="flex items-start gap-3 text-[15px] leading-6">
-                  <span className="mt-[2px] inline-flex h-4 w-4 items-center justify-center rounded-full bg-[#E7F2FF]">
-                    <Check className="w-3 h-3 text-[#4299ff]" />
+                <li key={item} className="flex items-start gap-3.5 text-[16px] leading-[26px]">
+                  <span className="mt-1 inline-flex h-5 w-5 md:h-6 md:w-6 items-center justify-center rounded-full bg-[#EEF6FF] ring-1 ring-[#4299ff]/20">
+                    <Check className="text-[#2F7FE8]" size={14} strokeWidth={3} />
                   </span>
-                  <span className="text-black/85">{item}</span>
+                  <span className="text-black/65">{item}</span>
                 </li>
               ))}
             </ul>
