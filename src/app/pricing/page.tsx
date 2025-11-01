@@ -11,17 +11,17 @@ export default function PricingPage() {
     <div className="min-h-screen bg-white relative">
       <Header />
       {/* Keep content below the fixed header */}
-      <main className="mx-auto w-full px-9 md:px-13 lg:px-16 max-w-[1280px] pt-36 pb-28">
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-20 items-start">
+      <main className="mx-auto w-full px-9 md:px-13 lg:px-16 max-w-[1280px] pt-44 pb-32">
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-24 items-start">
           {/* Left: Headline + intro + bullets */}
           <div>
             <h1 className="font-perfectly-nineties font-[550] text-[48px] md:text-[64px] lg:text-[72px] leading-[1.02] tracking-[-1px]">
-              Meet DuNorth Enterprise
+              Meet DuNorth<br />Enterprise
             </h1>
-            <p className="mt-5 text-[18px] leading-7 text-black/70 max-w-[48ch]">
+            <p className="mt-6 text-[18px] leading-7 text-black/70 max-w-[48ch]">
               DuNorth helps your students learn faster with AI—safely and at scale. We’d love to show you how.
             </p>
-            <ul className="mt-8 space-y-3">
+            <ul className="mt-10 space-y-3">
               {[
                 'Secure workspace with admin controls',
                 'SAML SSO authentication',
@@ -42,7 +42,7 @@ export default function PricingPage() {
 
           {/* Right: Non-functional form (visual only) */}
           <form
-            className="rounded-3xl ring-1 ring-black/10 p-8 bg-white shadow-[0_1px_0_rgba(0,0,0,0.04),0_16px_40px_rgba(0,0,0,0.04)]"
+            className="rounded-3xl ring-1 ring-black/10 p-8 bg-white shadow-[0_1px_0_rgba(0,0,0,0.04),0_16px_40px_rgba(0,0,0,0.04)] md:mt-2"
             onSubmit={(e) => e.preventDefault()}
           >
             <div className="space-y-5">
