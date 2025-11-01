@@ -377,7 +377,7 @@ export const Footer: React.FC = () => {
                 </a>
               </div>
               <p className="text-[#9A9A9A] text-sm leading-[16px] font-normal">
-                Sub-processors include Stripe, Vercel and Supabase.
+                Sub-processors include Anthropic, Vercel and Supabase.
               </p>
             </div>
             <p className="text-[#9A9A9A] text-base leading-[16px]">
@@ -445,7 +445,7 @@ export const Footer: React.FC = () => {
                 ))}
               </div>
               <p className="text-gray-400 font-normal text-sm">
-                Sub-processors include Stripe, Vercel and Supabase.
+                Sub-processors include Anthropic, Vercel and Supabase.
               </p>
             </div>
             <p className="text-gray-400 text-base font-medium">

@@ -55,17 +55,17 @@ export default function PricingPage() {
                   <input 
                     type="email"
                     className="w-full h-[46px] rounded-md border border-[#e5e7eb] bg-white px-4 text-[15px] text-black outline-none focus:border-[#d1d5db] placeholder:text-[#9ca3af] transition-colors font-normal" 
-                    placeholder="name@company.com" 
+                    placeholder="name@school.edu" 
                   />
                 </div>
                 <div>
                   <label className="block text-[17px] font-bold text-black mb-2.5">
-                    What's your company name? <span className="text-black">*</span>
+                    What's your school's name? <span className="text-black">*</span>
                   </label>
                   <input 
                     type="text"
                     className="w-full h-[46px] rounded-md border border-[#e5e7eb] bg-white px-4 text-[15px] text-black outline-none focus:border-[#d1d5db] placeholder:text-[#9ca3af] transition-colors font-normal" 
-                    placeholder="Your company's name" 
+                    placeholder="Your school's name" 
                   />
                 </div>
                 <div>
@@ -80,18 +80,18 @@ export default function PricingPage() {
                 </div>
                 <div>
                   <label className="block text-[17px] font-bold text-black mb-2.5">
-                    How many people at your company? <span className="text-black">*</span>
+                    How many students are at your school? <span className="text-black">*</span>
                   </label>
                   <select 
                     className="w-full h-[46px] rounded-md border border-[#e5e7eb] bg-white px-4 text-[15px] text-[#9ca3af] outline-none focus:border-[#d1d5db] transition-colors font-normal appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%239ca3af%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E')] bg-[length:20px] bg-[right_12px_center] bg-no-repeat"
                   >
-                    <option value="">Company headcount</option>
-                    <option value="1-10">1-10</option>
-                    <option value="11-50">11-50</option>
-                    <option value="51-200">51-200</option>
-                    <option value="201-500">201-500</option>
-                    <option value="501-1000">501-1000</option>
-                    <option value="1000+">1000+</option>
+                    <option value="">Student enrollment</option>
+                    <option value="1-500">1-500</option>
+                    <option value="501-1000">501-1,000</option>
+                    <option value="1001-5000">1,001-5,000</option>
+                    <option value="5001-10000">5,001-10,000</option>
+                    <option value="10001-25000">10,001-25,000</option>
+                    <option value="25000+">25,000+</option>
                   </select>
                 </div>
                 <div>
@@ -102,12 +102,12 @@ export default function PricingPage() {
                     className="w-full h-[46px] rounded-md border border-[#e5e7eb] bg-white px-4 text-[15px] text-[#9ca3af] outline-none focus:border-[#d1d5db] transition-colors font-normal appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%239ca3af%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E')] bg-[length:20px] bg-[right_12px_center] bg-no-repeat"
                   >
                     <option value="">Seats needed</option>
-                    <option value="1-10">1-10</option>
-                    <option value="11-50">11-50</option>
-                    <option value="51-100">51-100</option>
+                    <option value="1-100">1-100</option>
                     <option value="101-500">101-500</option>
-                    <option value="501-1000">501-1000</option>
-                    <option value="1000+">1000+</option>
+                    <option value="501-1000">501-1,000</option>
+                    <option value="1001-5000">1,001-5,000</option>
+                    <option value="5001-10000">5,001-10,000</option>
+                    <option value="10000+">10,000+</option>
                   </select>
                 </div>
                 <div>
