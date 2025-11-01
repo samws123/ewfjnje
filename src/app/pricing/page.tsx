@@ -2,8 +2,6 @@
 
 import React, { useState } from 'react';
 import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
-import { ScrollToTop } from '@/components/ScrollToTop';
 import { Check } from 'lucide-react';
 
 export default function PricingPage() {
@@ -119,7 +117,7 @@ export default function PricingPage() {
                     placeholder="Your intended use-case"
                   />
                 </div>
-                <button type="submit" className="w-full h-[46px] rounded-md bg-black text-white text-[15px] font-semibold hover:bg-black/90 transition-colors">
+                <button type="submit" className="w-full h-[46px] rounded-full bg-black text-white text-[15px] font-semibold hover:bg-black/90 transition-colors">
                   Request demo
                 </button>
               </div>
@@ -137,8 +135,6 @@ export default function PricingPage() {
           )}
         </section>
       </main>
-      <Footer />
-      <ScrollToTop />
     </div>
   )
 }
