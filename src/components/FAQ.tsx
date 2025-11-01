@@ -43,7 +43,7 @@ export const FAQ: React.FC = () => {
   };
 
   return (
-    <section id="faqs" className="py-36 max-md:py-24 w-full">
+    <section id="faqs" className="py-36 max-md:py-24 w-full scroll-mt-[120px]">
       <div className="max-w-6xl mx-auto px-4">
         <div className="w-full flex max-w-[1280px] justify-between flex-col lg:flex-row  gap-8 ">
           <div>
