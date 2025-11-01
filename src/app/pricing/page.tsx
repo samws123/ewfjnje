@@ -1,157 +1,89 @@
 'use client'
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { ScrollToTop } from '@/components/ScrollToTop';
 import { Check } from 'lucide-react';
 
 export default function PricingPage() {
-  const [activeTab, setActiveTab] = useState('ai');
-
   return (
     <div className="min-h-screen bg-white relative">
       <Header />
-      {/* offset for fixed header so content never scrolls underneath */}
-      <main className="flex flex-col items-center mx-auto w-full px-9 md:px-13 lg:px-16 max-w-[1280px] pt-32 pb-24">
-        {/* Header Section */}
-        <div className="text-center mb-14">
-          <p className="text-sm font-medium mb-3 tracking-wide uppercase text-black/60">
-            Pricing
-          </p>
-          <h1 className="font-perfectly-nineties font-[550] text-[44px] md:text-[52px] lg:text-[60px] leading-[1.05]">
-            Choose Your DuNorth Plan
-          </h1>
-          <p className="font-system text-base md:text-lg text-secondary-foreground tracking-[-0.32px] max-w-2xl mx-auto mt-4">
-            Affordable plans for programs of any size.
-          </p>
-        </div>
-
-        {/* Tabs */}
-        <div className="flex gap-2 mb-16 bg-gray-100 p-1 rounded-lg">
-          <button
-            onClick={() => setActiveTab('ai')}
-            className={`px-8 py-3 rounded-md text-sm font-medium transition-all ${
-              activeTab === 'ai'
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            DuNorth AI
-          </button>
-          <button
-            onClick={() => setActiveTab('chat')}
-            className={`px-8 py-3 rounded-md text-sm font-medium transition-all ${
-              activeTab === 'chat'
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            DuNorth Chat
-          </button>
-        </div>
-
-        {/* Pricing Cards */}
-        <div className="grid md:grid-cols-2 gap-8 w-full max-w-6xl">
-          {/* Department Plan */}
-          <div className="border border-black/10 rounded-3xl p-10 hover:shadow-md transition-shadow bg-white">
-            <div className="mb-6">
-              <h2 className="text-[24px] font-semibold tracking-[-0.2px]">Department Plan</h2>
-              <p className="text-black/60 mt-2">
-                For individual programs, courses, and departments.
-              </p>
-            </div>
-
-            <div className="mb-8">
-              <h3 className="text-xs font-semibold text-black mb-4 uppercase tracking-wide">
-                Features
-              </h3>
-              <div className="space-y-3">
-                <div className="flex items-start gap-3">
-                  <Check className="w-4 h-4 text-black flex-shrink-0 mt-1" />
-                  <span className="text-gray-900 text-[15px] leading-6">Unlimited AI Assistants</span>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Check className="w-4 h-4 text-black flex-shrink-0 mt-1" />
-                  <span className="text-gray-900 text-[15px] leading-6">Analytics dashboard</span>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Check className="w-4 h-4 text-black flex-shrink-0 mt-1" />
-                  <span className="text-gray-900 text-[15px] leading-6">FERPA/COPPA compliant</span>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Check className="w-4 h-4 text-black flex-shrink-0 mt-1" />
-                  <span className="text-gray-900 text-[15px] leading-6">Basic support and training</span>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Check className="w-4 h-4 text-black flex-shrink-0 mt-1" />
-                  <span className="text-gray-900 text-[15px] leading-6">LMS integration (iframe)</span>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Check className="w-4 h-4 text-black flex-shrink-0 mt-1" />
-                  <span className="text-gray-900 text-[15px] leading-6">Comprehensive help guide</span>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Check className="w-4 h-4 text-black flex-shrink-0 mt-1" />
-                  <span className="text-gray-900 text-[15px] leading-6">Flexible AI model selection</span>
-                </div>
-              </div>
-            </div>
-
-            <button className="w-full bg-black hover:bg-black/85 text-white font-medium py-4 px-6 rounded-lg transition-colors">
-              Contact sales
-            </button>
+      {/* Keep content below the fixed header */}
+      <main className="mx-auto w-full px-9 md:px-13 lg:px-16 max-w-[1280px] pt-32 pb-24">
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+          {/* Left: Headline + intro + bullets */}
+          <div>
+            <h1 className="font-perfectly-nineties font-[550] text-[44px] md:text-[56px] leading-[1.05] tracking-[-0.6px]">
+              Meet DuNorth Enterprise
+            </h1>
+            <p className="mt-5 text-[17px] leading-7 text-black/70 max-w-[46ch]">
+              DuNorth helps your students learn faster with AI—safely and at scale. We’d love to show you how.
+            </p>
+            <ul className="mt-8 space-y-3">
+              {[
+                'Secure workspace with admin controls',
+                'SAML SSO authentication',
+                'FERPA/SOC 2–aligned operations',
+                'Volume discounts',
+                'Priority support & onboarding',
+                'Dedicated account manager',
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-3 text-[15px] leading-6">
+                  <Check className="w-4 h-4 mt-1 text-black" />
+                  <span className="text-gray-900">{item}</span>
+                </li>
+              ))}
+            </ul>
           </div>
 
-          {/* Institution Plan */}
-          <div className="border border-black/10 rounded-3xl p-10 hover:shadow-md transition-shadow bg-white">
-            <div className="mb-6">
-              <h2 className="text-[24px] font-semibold tracking-[-0.2px]">Institution Plan</h2>
-              <p className="text-black/60 mt-2">
-                For small to large campuses.
-              </p>
-            </div>
-
-            <div className="mb-8">
-              <h3 className="text-xs font-semibold text-black mb-4 uppercase tracking-wide">
-                Features
-              </h3>
-              <p className="text-black/60 text-[15px] mb-4">
-                Everything in our <span className="font-semibold text-black">Department Plan</span> plus...
-              </p>
-              <div className="space-y-3">
-                <div className="flex items-start gap-3">
-                  <Check className="w-4 h-4 text-black flex-shrink-0 mt-1" />
-                  <span className="text-gray-900 text-[15px] leading-6">Campus-wide implementation</span>
+          {/* Right: Non-functional form (visual only) */}
+          <form
+            className="rounded-3xl border border-black/10 p-8 bg-white shadow-sm"
+            onSubmit={(e) => e.preventDefault()}
+          >
+            <div className="space-y-5">
+              <div>
+                <label className="block text-[13px] font-medium mb-2">Work email</label>
+                <input className="w-full h-12 rounded-xl border border-black/15 px-4 outline-none focus:border-black/40" placeholder="name@school.edu" />
+              </div>
+              <div>
+                <label className="block text-[13px] font-medium mb-2">Institution / company</label>
+                <input className="w-full h-12 rounded-xl border border-black/15 px-4 outline-none focus:border-black/40" placeholder="University / Organization" />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label className="block text-[13px] font-medium mb-2">First name</label>
+                  <input className="w-full h-12 rounded-xl border border-black/15 px-4 outline-none focus:border-black/40" />
                 </div>
-                <div className="flex items-start gap-3">
-                  <Check className="w-4 h-4 text-black flex-shrink-0 mt-1" />
-                  <span className="text-gray-900 text-[15px] leading-6">Advanced support and training</span>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Check className="w-4 h-4 text-black flex-shrink-0 mt-1" />
-                  <span className="text-gray-900 text-[15px] leading-6">Centralized management</span>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Check className="w-4 h-4 text-black flex-shrink-0 mt-1" />
-                  <span className="text-gray-900 text-[15px] leading-6">Cost savings at scale</span>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Check className="w-4 h-4 text-black flex-shrink-0 mt-1" />
-                  <span className="text-gray-900 text-[15px] leading-6">LMS integration (LTI 1.3)</span>
+                <div>
+                  <label className="block text-[13px] font-medium mb-2">Last name</label>
+                  <input className="w-full h-12 rounded-xl border border-black/15 px-4 outline-none focus:border-black/40" />
                 </div>
               </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label className="block text-[13px] font-medium mb-2">Headcount</label>
+                  <input className="w-full h-12 rounded-xl border border-black/15 px-4 outline-none focus:border-black/40" placeholder="e.g. 10,000" />
+                </div>
+                <div>
+                  <label className="block text-[13px] font-medium mb-2">Seats needed</label>
+                  <input className="w-full h-12 rounded-xl border border-black/15 px-4 outline-none focus:border-black/40" placeholder="e.g. 1,000" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-[13px] font-medium mb-2">What brought you to DuNorth?</label>
+                <textarea className="w-full rounded-xl border border-black/15 px-4 py-3 outline-none focus:border-black/40" rows={4} placeholder="Tell us your intended use case" />
+              </div>
+              <button className="w-full h-12 rounded-xl bg-black text-white font-medium hover:bg-black/85">Request demo</button>
             </div>
-
-            <button className="w-full bg-black hover:bg-black/85 text-white font-medium py-4 px-6 rounded-lg transition-colors">
-              Contact sales
-            </button>
-          </div>
-        </div>
+          </form>
+        </section>
       </main>
       <Footer />
       <ScrollToTop />
     </div>
-  );
+  )
 }
 
