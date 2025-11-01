@@ -169,7 +169,7 @@ export const Features: React.FC = () => {
           <WorkflowFeature key={index} feature={feature} index={index} />
         ))}
 
-        <section ref={statsRef} className="text-center mb-32">
+        <section id="stats" ref={statsRef} className="text-center mb-32">
           <h2
             className={`font-perfectly-nineties mb-16 font-[550] text-balance text-center mx-auto leading-[100%] text-[32px] md:text-[56px] max-w-[820px] ${
               statsVisible

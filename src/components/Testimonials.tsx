@@ -95,7 +95,7 @@ export const Testimonials: React.FC = () => {
   ];
 
   return (
-    <section ref={elementRef} className="py-16">
+    <section id="testimonials" ref={elementRef} className="py-16">
       <div className="max-w-6xl mx-auto px-4">
         <h2
           className={`font-perfectly-nineties mb-16 font-[550] text-balance text-center mx-auto leading-[100%] text-[32px] md:text-[56px] max-w-[820px] ${
