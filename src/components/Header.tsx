@@ -126,11 +126,15 @@ export const Header: React.FC = () => {
                     >
                       <button
                         onClick={() => {
-                          const section = document.getElementById('testimonials');
-                          if (section) {
-                            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                          }
                           useCasesDropdown.setOpen(false);
+                          if (window.location.pathname === '/') {
+                            const section = document.getElementById('testimonials');
+                            if (section) {
+                              section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }
+                          } else {
+                            window.location.href = '/#testimonials';
+                          }
                         }}
                         className="block w-full text-left px-5 py-2 text-sm text-gray-900 rounded-sm hover:bg-gray-100"
                       >

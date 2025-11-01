@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 import { Check } from 'lucide-react';
 
 export default function PricingPage() {
@@ -135,6 +136,7 @@ export default function PricingPage() {
           )}
         </section>
       </main>
+      <Footer />
     </div>
   )
 }
