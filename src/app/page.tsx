@@ -22,6 +22,21 @@ export default function Home() {
     }
   }, [user, loading, router]);
 
+  useEffect(() => {
+    // Smooth-scroll to hash targets with offset once the page mounts
+    const hash = window.location.hash?.slice(1);
+    if (hash) {
+      const headerOffset = 120;
+      const extraOffset = hash === 'testimonials' ? Math.round(window.innerHeight * 0.05) : 0;
+      const section = document.getElementById(hash);
+      if (section) {
+        const top = Math.max(0, section.getBoundingClientRect().top + window.scrollY - headerOffset + extraOffset);
+        // Delay to allow header/menu transitions to close
+        setTimeout(() => window.scrollTo({ top, behavior: 'smooth' }), 100);
+      }
+    }
+  }, []);
+
   // Show loading while checking authentication
   if (loading) {
     return (

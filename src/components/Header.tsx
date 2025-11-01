@@ -25,6 +25,15 @@ export const Header: React.FC = () => {
   const useCasesDropdown = useDropdown();
   const resourcesDropdown = useDropdown();
 
+  const scrollToId = (id: string, extraOffsetPx: number = 0) => {
+    const section = document.getElementById(id);
+    if (!section) return;
+    const headerOffset = 120; // approximate fixed header height
+    const rect = section.getBoundingClientRect();
+    const top = Math.max(0, rect.top + window.scrollY - headerOffset + extraOffsetPx);
+    window.scrollTo({ top, behavior: 'smooth' });
+  };
+
   return (
     <header className="fixed top-0 z-50 w-full bg-white/90 backdrop-blur-xl">
       <div className="relative flex flex-row md:h-[88px] h-16 items-center px-9 md:px-13 lg:px-16 mx-auto max-w-[1280px]">
@@ -35,7 +44,7 @@ export const Header: React.FC = () => {
           href="/"
         >
           <svg
-            className="w-[96px] h-auto -ml-[6px] scale-x-[1.015]"
+            className="w-[96px] h-auto -ml-[6px] scale-x-[1.015] block"
             viewBox="0 0 298 79"
             role="img"
             aria-label="DuNorth logo"
@@ -128,15 +137,7 @@ export const Header: React.FC = () => {
                         onClick={() => {
                           useCasesDropdown.setOpen(false);
                           if (window.location.pathname === '/') {
-                            setTimeout(() => {
-                              const section = document.getElementById('testimonials');
-                              if (section) {
-                                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                setTimeout(() => {
-                                  window.scrollBy({ top: Math.round(window.innerHeight * 0.05), behavior: 'smooth' });
-                                }, 120);
-                              }
-                            }, 100);
+                            setTimeout(() => scrollToId('testimonials', Math.round(window.innerHeight * 0.05)), 100);
                           } else {
                             window.location.href = '/#testimonials';
                           }
