@@ -1,9 +1,6 @@
 {
   "version": 2,
-  "rewrites": [
-    { "source": "/trial", "destination": "/api/nectir-proxy?path=/" },
-    { "source": "/trial/(.*)", "destination": "/api/nectir-proxy?path=/$1" }
-  ]
+  "rewrites": []
 }
 
 
