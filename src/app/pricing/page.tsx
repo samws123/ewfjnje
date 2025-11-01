@@ -42,7 +42,7 @@ export default function PricingPage() {
 
           {/* Right: Non-functional form (visual only) */}
           <form
-            className="rounded-3xl ring-1 ring-black/10 p-8 bg-white shadow-[0_1px_0_rgba(0,0,0,0.04),0_16px_40px_rgba(0,0,0,0.04)] md:mt-2"
+            className="self-start rounded-3xl ring-1 ring-black/10 p-8 bg-white shadow-[0_1px_0_rgba(0,0,0,0.04),0_16px_40px_rgba(0,0,0,0.04)]"
             onSubmit={(e) => e.preventDefault()}
           >
             <div className="space-y-5">
