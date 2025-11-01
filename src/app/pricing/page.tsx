@@ -47,54 +47,54 @@ export default function PricingPage() {
               className="self-start w-full max-w-[560px] space-y-6"
               onSubmit={(e) => { e.preventDefault(); setSubmitted(true) }}
             >
-              <div className="space-y-6">
-              <div>
-                <label className="flex items-center gap-1.5 text-[13px] font-semibold text-black/80 mb-2 tracking-[-0.01em]">
-                  Work email <span className="text-slate-400">•</span>
-                </label>
-                <input className="w-full h-12 rounded-xl border border-slate-200 px-4 outline-none focus:border-slate-300 placeholder:text-slate-400 transition-colors" placeholder="name@school.edu" />
-              </div>
-              <div>
-                <label className="flex items-center gap-1.5 text-[13px] font-semibold text-black/80 mb-2 tracking-[-0.01em]">
-                  Institution / company <span className="text-slate-400">•</span>
-                </label>
-                <input className="w-full h-12 rounded-xl border border-slate-200 px-4 outline-none focus:border-slate-300 placeholder:text-slate-400 transition-colors" placeholder="University / Organization" />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="space-y-5">
                 <div>
-                  <label className="flex items-center gap-1.5 text-[13px] font-semibold text-black/80 mb-2 tracking-[-0.01em]">
-                    First name <span className="text-slate-400">•</span>
+                  <label className="block text-[15px] font-semibold text-black mb-2.5">
+                    Work email <span className="text-red-500">*</span>
                   </label>
-                  <input className="w-full h-12 rounded-xl border border-slate-200 px-4 outline-none focus:border-slate-300 placeholder:text-slate-400 transition-colors" />
+                  <input className="w-full h-11 rounded-lg border border-slate-200 px-3.5 text-[15px] outline-none focus:border-slate-300 placeholder:text-slate-400 transition-colors" placeholder="name@school.edu" />
                 </div>
                 <div>
-                  <label className="flex items-center gap-1.5 text-[13px] font-semibold text-black/80 mb-2 tracking-[-0.01em]">
-                    Last name <span className="text-slate-400">•</span>
+                  <label className="block text-[15px] font-semibold text-black mb-2.5">
+                    Institution / company <span className="text-red-500">*</span>
                   </label>
-                  <input className="w-full h-12 rounded-xl border border-slate-200 px-4 outline-none focus:border-slate-300 placeholder:text-slate-400 transition-colors" />
+                  <input className="w-full h-11 rounded-lg border border-slate-200 px-3.5 text-[15px] outline-none focus:border-slate-300 placeholder:text-slate-400 transition-colors" placeholder="University / Organization" />
                 </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[15px] font-semibold text-black mb-2.5">
+                      First name <span className="text-red-500">*</span>
+                    </label>
+                    <input className="w-full h-11 rounded-lg border border-slate-200 px-3.5 text-[15px] outline-none focus:border-slate-300 placeholder:text-slate-400 transition-colors" />
+                  </div>
+                  <div>
+                    <label className="block text-[15px] font-semibold text-black mb-2.5">
+                      Last name <span className="text-red-500">*</span>
+                    </label>
+                    <input className="w-full h-11 rounded-lg border border-slate-200 px-3.5 text-[15px] outline-none focus:border-slate-300 placeholder:text-slate-400 transition-colors" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[15px] font-semibold text-black mb-2.5">
+                      Headcount <span className="text-red-500">*</span>
+                    </label>
+                    <input className="w-full h-11 rounded-lg border border-slate-200 px-3.5 text-[15px] outline-none focus:border-slate-300 placeholder:text-slate-400 transition-colors" placeholder="e.g. 10,000" />
+                  </div>
+                  <div>
+                    <label className="block text-[15px] font-semibold text-black mb-2.5">
+                      Seats needed <span className="text-red-500">*</span>
+                    </label>
+                    <input className="w-full h-11 rounded-lg border border-slate-200 px-3.5 text-[15px] outline-none focus:border-slate-300 placeholder:text-slate-400 transition-colors" placeholder="e.g. 1,000" />
+                  </div>
+                </div>
                 <div>
-                  <label className="flex items-center gap-1.5 text-[13px] font-semibold text-black/80 mb-2 tracking-[-0.01em]">
-                    Headcount <span className="text-slate-400">•</span>
+                  <label className="block text-[15px] font-semibold text-black mb-2.5">
+                    What brought you to DuNorth? <span className="text-red-500">*</span>
                   </label>
-                  <input className="w-full h-12 rounded-xl border border-slate-200 px-4 outline-none focus:border-slate-300 placeholder:text-slate-400 transition-colors" placeholder="e.g. 10,000" />
+                  <textarea className="w-full rounded-lg border border-slate-200 px-3.5 py-3 text-[15px] outline-none focus:border-slate-300 placeholder:text-slate-400 transition-colors resize-none" rows={4} placeholder="Tell us your intended use case" />
                 </div>
-                <div>
-                  <label className="flex items-center gap-1.5 text-[13px] font-semibold text-black/80 mb-2 tracking-[-0.01em]">
-                    Seats needed <span className="text-slate-400">•</span>
-                  </label>
-                  <input className="w-full h-12 rounded-xl border border-slate-200 px-4 outline-none focus:border-slate-300 placeholder:text-slate-400 transition-colors" placeholder="e.g. 1,000" />
-                </div>
-              </div>
-              <div>
-                <label className="flex items-center gap-1.5 text-[13px] font-semibold text-black/80 mb-2 tracking-[-0.01em]">
-                  What brought you to DuNorth? <span className="text-slate-400">•</span>
-                </label>
-                <textarea className="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-slate-300 placeholder:text-slate-400 transition-colors" rows={4} placeholder="Tell us your intended use case" />
-              </div>
-                <button type="submit" className="w-full h-12 rounded-xl bg-black text-white font-medium hover:bg-black/85">Request demo</button>
+                <button type="submit" className="w-full h-11 rounded-lg bg-black text-white text-[15px] font-semibold hover:bg-black/85 transition-colors">Request demo</button>
               </div>
             </form>
           ) : (
