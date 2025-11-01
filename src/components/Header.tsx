@@ -95,7 +95,7 @@ export const Header: React.FC = () => {
                   {useCasesDropdown.open && (
                     <motion.div
                       id="use-cases-dropdown"
-                      className="absolute left-0 top-full mt-2 min-w-[180px] bg-white shadow-lg rounded-lg py-2 px-2 z-20 border border-gray-100"
+                      className="absolute left-0 top-full mt-0 min-w-[180px] bg-white shadow-lg rounded-lg py-2 px-2 z-20 border border-gray-100"
                       onMouseEnter={useCasesDropdown.bind.onMouseEnter}
                       onMouseLeave={useCasesDropdown.bind.onMouseLeave}
                       initial={{
@@ -124,12 +124,18 @@ export const Header: React.FC = () => {
                       }}
                       transition={{ duration: 0.35, ease: [0.4, 0.2, 0.2, 1] }}
                     >
-                      <a
-                        href="/use-cases/students"
-                        className="block px-5 py-2 text-sm text-gray-900 rounded-sm hover:bg-gray-100"
+                      <button
+                        onClick={() => {
+                          const section = document.getElementById('testimonials');
+                          if (section) {
+                            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                          }
+                          useCasesDropdown.setOpen(false);
+                        }}
+                        className="block w-full text-left px-5 py-2 text-sm text-gray-900 rounded-sm hover:bg-gray-100"
                       >
                         Students
-                      </a>
+                      </button>
                       <a
                         href="/use-cases/faculty"
                         className="block px-5 py-2 text-sm text-gray-900 rounded-sm hover:bg-gray-100"
