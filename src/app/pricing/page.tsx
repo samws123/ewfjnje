@@ -136,7 +136,7 @@ export default function PricingPage() {
           )}
         </section>
       </main>
-      <Footer />
+      <Footer showCTA={false} />
     </div>
   )
 }

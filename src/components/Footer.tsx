@@ -4,7 +4,11 @@ import React from "react";
 import { Button } from "@/components/ui/Button";
 import { useRouter } from "next/navigation";
 
-export const Footer: React.FC = () => {
+interface FooterProps {
+  showCTA?: boolean;
+}
+
+export const Footer: React.FC<FooterProps> = ({ showCTA = true }) => {
   const router = useRouter();
   const footerSections = [
     {
@@ -70,47 +74,49 @@ export const Footer: React.FC = () => {
           />
         </section> */}
 
-        <div className="flex flex-col items-start text-start w-full max-w-[1280px] tracking-tight pt-24 pb-12 md:pb-[200px] mx-auto px-9 md:px-13 lg:px-16">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 16 16"
-            className="w-13 h-13 mx-auto text-[#E0E0E0]"
-          >
-            <path
-              fill="currentColor"
-              d="M1.56 15.846c-.915.553-1.959-.491-1.406-1.407L5.41 7.281a1.024 1.024 0 0 0 0-1.06l-3.048-4.66C1.808.645 2.85-.4 3.767.154l4.661 3.049c.326.196.734.196 1.06 0L14.438.154c.916-.553 1.96.491 1.407 1.407l-3.049 4.952a1.024 1.024 0 0 0 0 1.059l3.049 4.66c.553.916-.491 1.96-1.407 1.407l-4.66-3.048a1.024 1.024 0 0 0-1.06 0l-7.158 5.255Z"
-            ></path>
-          </svg>
-          <h2 className="font-perfectly-nineties font-[550] text-balance text-center mx-auto leading-[39px] sm:leading-[46px] md:leading-[58px] lg:leading-[68px] xl:leading-[76px] text-[36px] sm:text-[42px] md:text-[56px] lg:text-[64px] xl:text-[72px] max-w-[820px] mt-5">
-            Where people and AI do research work together
-          </h2>
-          <p className="text-secondary-foreground leading-6 max-w-[750px] mt-7 mx-auto text-center text-balance">
-            DuNorth helps you find, understand, organize and produce scientific
-            documents with AI. Take it for a spin today. No card required.
-          </p>
-          <div className="flex flex-row items-center justify-center gap-[14px] mt-12 mx-auto">
-            <button
-              aria-busy="false"
-              className="inline-flex items-center select-none relative justify-center whitespace-nowrap ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border bg-background-inverse text-text-inverse h-14 rounded-7 gap-5 tracking-normal text-base leading-4 font-medium hover:scale-[1.02] transition-all duration-200 ease-in-out !rounded-full px-7 py-6"
-              onClick={() => router.push('/signup')}
+        {showCTA && (
+          <div className="flex flex-col items-start text-start w-full max-w-[1280px] tracking-tight pt-24 pb-12 md:pb-[200px] mx-auto px-9 md:px-13 lg:px-16">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 16 16"
+              className="w-13 h-13 mx-auto text-[#E0E0E0]"
             >
-              <span className="truncate">Try for free</span>
-            </button>
-            <button
-              aria-busy="false"
-              className="inline-flex items-center select-none relative justify-center whitespace-nowrap ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border bg-secondary hover:bg-secondary-hover h-14 rounded-7 gap-5 tracking-normal text-text-primary text-base leading-4 font-medium hover:scale-[1.02] transition-all duration-200 ease-in-out !rounded-full px-7 py-6"
-              onClick={() => window.location.href = 'mailto:support@dunorth.io?subject=Demo Request --'}
-            >
-              <span className="truncate">Request demo</span>
-            </button>
+              <path
+                fill="currentColor"
+                d="M1.56 15.846c-.915.553-1.959-.491-1.406-1.407L5.41 7.281a1.024 1.024 0 0 0 0-1.06l-3.048-4.66C1.808.645 2.85-.4 3.767.154l4.661 3.049c.326.196.734.196 1.06 0L14.438.154c.916-.553 1.96.491 1.407 1.407l-3.049 4.952a1.024 1.024 0 0 0 0 1.059l3.049 4.66c.553.916-.491 1.96-1.407 1.407l-4.66-3.048a1.024 1.024 0 0 0-1.06 0l-7.158 5.255Z"
+              ></path>
+            </svg>
+            <h2 className="font-perfectly-nineties font-[550] text-balance text-center mx-auto leading-[39px] sm:leading-[46px] md:leading-[58px] lg:leading-[68px] xl:leading-[76px] text-[36px] sm:text-[42px] md:text-[56px] lg:text-[64px] xl:text-[72px] max-w-[820px] mt-5">
+              Where people and AI do research work together
+            </h2>
+            <p className="text-secondary-foreground leading-6 max-w-[750px] mt-7 mx-auto text-center text-balance">
+              DuNorth helps you find, understand, organize and produce scientific
+              documents with AI. Take it for a spin today. No card required.
+            </p>
+            <div className="flex flex-row items-center justify-center gap-[14px] mt-12 mx-auto">
+              <button
+                aria-busy="false"
+                className="inline-flex items-center select-none relative justify-center whitespace-nowrap ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border bg-background-inverse text-text-inverse h-14 rounded-7 gap-5 tracking-normal text-base leading-4 font-medium hover:scale-[1.02] transition-all duration-200 ease-in-out !rounded-full px-7 py-6"
+                onClick={() => router.push('/signup')}
+              >
+                <span className="truncate">Try for free</span>
+              </button>
+              <button
+                aria-busy="false"
+                className="inline-flex items-center select-none relative justify-center whitespace-nowrap ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 box-border bg-secondary hover:bg-secondary-hover h-14 rounded-7 gap-5 tracking-normal text-text-primary text-base leading-4 font-medium hover:scale-[1.02] transition-all duration-200 ease-in-out !rounded-full px-7 py-6"
+                onClick={() => window.location.href = 'mailto:support@dunorth.io?subject=Demo Request --'}
+              >
+                <span className="truncate">Request demo</span>
+              </button>
+            </div>
+            <img
+              src="https://api.builder.io/api/v1/image/assets/TEMP/4d38a068ebd3cca84550b189bff99de961d04aac?placeholderIfAbsent=true"
+              alt="Product Screenshot"
+              className="aspect-[2.43] object-contain w-full mt-15 rounded-2xl"
+            />
           </div>
-          <img
-            src="https://api.builder.io/api/v1/image/assets/TEMP/4d38a068ebd3cca84550b189bff99de961d04aac?placeholderIfAbsent=true"
-            alt="Product Screenshot"
-            className="aspect-[2.43] object-contain w-full mt-15 rounded-2xl"
-          />
-        </div>
+        )}
 
         <div className="max-w-[1280px] w-full mx-auto px-9 md:px-13 lg:px-16 pb-[60px] md:pb-[56px]">
           <div className="flex flex-col md:flex-row gap-7 lg:gap-10 justify-between items-start w-full mb-10">
