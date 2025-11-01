@@ -236,11 +236,16 @@ export const Features: React.FC = () => {
 
 const WorkflowFeature: React.FC<{ feature: any; index: number }> = ({
   feature,
+  index,
 }) => {
   const { elementRef, isVisible } = useIntersectionObserver();
 
   return (
-    <section ref={elementRef} className="mb-[276px] max-md:mb-20">
+    <section
+      id={index === 0 ? "features" : index === 3 ? "faculty" : undefined}
+      ref={elementRef}
+      className="mb-[276px] max-md:mb-20"
+    >
       <div
         className={`text-center mb-14 max-md:mb-10 transition-all duration-600 ease-out ${
           isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"

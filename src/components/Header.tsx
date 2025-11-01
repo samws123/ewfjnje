@@ -132,6 +132,9 @@ export const Header: React.FC = () => {
                               const section = document.getElementById('testimonials');
                               if (section) {
                                 section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                setTimeout(() => {
+                                  window.scrollBy({ top: Math.round(window.innerHeight * 0.05), behavior: 'smooth' });
+                                }, 120);
                               }
                             }, 100);
                           } else {
@@ -142,18 +145,42 @@ export const Header: React.FC = () => {
                       >
                         Students
                       </button>
-                      <a
-                        href="/use-cases/faculty"
-                        className="block px-5 py-2 text-sm text-gray-900 rounded-sm hover:bg-gray-100"
+                      <button
+                        onClick={() => {
+                          useCasesDropdown.setOpen(false);
+                          if (window.location.pathname === '/') {
+                            setTimeout(() => {
+                              const section = document.getElementById('faculty');
+                              if (section) {
+                                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                              }
+                            }, 100);
+                          } else {
+                            window.location.href = '/#faculty';
+                          }
+                        }}
+                        className="block w-full text-left px-5 py-2 text-sm text-gray-900 rounded-sm hover:bg-gray-100"
                       >
                         Faculty
-                      </a>
-                      <a
-                        href="/use-cases/administrators"
-                        className="block px-5 py-2 text-sm text-gray-900 rounded-sm hover:bg-gray-100"
+                      </button>
+                      <button
+                        onClick={() => {
+                          useCasesDropdown.setOpen(false);
+                          if (window.location.pathname === '/') {
+                            setTimeout(() => {
+                              const section = document.getElementById('cta');
+                              if (section) {
+                                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                              }
+                            }, 100);
+                          } else {
+                            window.location.href = '/#cta';
+                          }
+                        }}
+                        className="block w-full text-left px-5 py-2 text-sm text-gray-900 rounded-sm hover:bg-gray-100"
                       >
                         Administrators
-                      </a>
+                      </button>
                     </motion.div>
                   )}
                 </li>
@@ -234,12 +261,24 @@ export const Header: React.FC = () => {
                       }}
                       transition={{ duration: 0.35, ease: [0.4, 0.2, 0.2, 1] }}
                     >
-                      <a
-                        href="/resources/blog"
-                        className="block px-5 py-2 text-sm text-gray-900 rounded-sm hover:bg-gray-100"
+                      <button
+                        onClick={() => {
+                          resourcesDropdown.setOpen(false);
+                          if (window.location.pathname === '/') {
+                            setTimeout(() => {
+                              const section = document.getElementById('features');
+                              if (section) {
+                                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                              }
+                            }, 100);
+                          } else {
+                            window.location.href = '/#features';
+                          }
+                        }}
+                        className="block w-full text-left px-5 py-2 text-sm text-gray-900 rounded-sm hover:bg-gray-100"
                       >
-                        Blog
-                      </a>
+                        Features
+                      </button>
                       <button
                         onClick={() => {
                           resourcesDropdown.setOpen(false);

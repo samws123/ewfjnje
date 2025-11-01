@@ -75,7 +75,7 @@ export const Footer: React.FC<FooterProps> = ({ showCTA = true }) => {
         </section> */}
 
         {showCTA && (
-          <div className="flex flex-col items-start text-start w-full max-w-[1280px] tracking-tight pt-24 pb-12 md:pb-[200px] mx-auto px-9 md:px-13 lg:px-16">
+          <div id="cta" className="flex flex-col items-start text-start w-full max-w-[1280px] tracking-tight pt-24 pb-12 md:pb-[200px] mx-auto px-9 md:px-13 lg:px-16">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
