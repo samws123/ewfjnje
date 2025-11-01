@@ -199,7 +199,7 @@ export const Header: React.FC = () => {
                   {resourcesDropdown.open && (
                     <motion.div
                       id="resources-dropdown"
-                      className="absolute left-0 top-full mt-2 min-w-[180px]  bg-white shadow-lg rounded-lg py-2 px-2 z-20 border border-gray-100"
+                      className="absolute left-0 top-full mt-0 min-w-[180px]  bg-white shadow-lg rounded-lg py-2 px-2 z-20 border border-gray-100"
                       onMouseEnter={resourcesDropdown.bind.onMouseEnter}
                       onMouseLeave={resourcesDropdown.bind.onMouseLeave}
                       initial={{
@@ -234,18 +234,30 @@ export const Header: React.FC = () => {
                       >
                         Blog
                       </a>
-                      <a
-                        href="/resources/docs"
-                        className="block px-5 py-2 text-sm text-gray-900 rounded-sm hover:bg-gray-100"
+                      <button
+                        onClick={() => {
+                          const section = document.getElementById('stats');
+                          if (section) {
+                            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                          }
+                          resourcesDropdown.setOpen(false);
+                        }}
+                        className="block w-full text-left px-5 py-2 text-sm text-gray-900 rounded-sm hover:bg-gray-100"
                       >
-                        Documentation
-                      </a>
-                      <a
-                        href="/resources/webinars"
-                        className="block px-5 py-2 text-sm text-gray-900 rounded-sm hover:bg-gray-100"
+                        Stats
+                      </button>
+                      <button
+                        onClick={() => {
+                          const section = document.getElementById('faqs');
+                          if (section) {
+                            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                          }
+                          resourcesDropdown.setOpen(false);
+                        }}
+                        className="block w-full text-left px-5 py-2 text-sm text-gray-900 rounded-sm hover:bg-gray-100"
                       >
-                        Webinars
-                      </a>
+                        FAQs
+                      </button>
                     </motion.div>
                   )}
                 </li>
